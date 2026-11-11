@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ["maven", "jdk21"]
+
+[phases.build]
+cmds = [
+  "mvn clean package -DskipTests",
+  "mkdir -p target",
+  "cp netsentinel-web/target/netsentinel-web.jar target/netsentinel-web.jar"
+]
+
+[start]
+cmd = "java -Dserver.port=$PORT $JAVA_OPTS -jar netsentinel-web/target/netsentinel-web.jar"
