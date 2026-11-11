@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management — NetSentinel Administration</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('users')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Authorized User Identity Management', 'Role Assignment, Credential Provisioning, & Access Governance')}"></div>
+
+        <main class="app-content">
+            <!-- Provision New Account Card -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Provision New Academic Persona</h2>
+                        <span class="panel-subtitle">Create verified student, faculty, or SOC admin accounts with BCrypt security</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <form th:action="@{/admin/users/add}" method="post" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:1rem; align-items:end;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="fullName" class="form-control" placeholder="e.g. Elena Rostova" required>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="e.g. elena_r" required>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="Initial password" required>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="e.g. elena@netsentinel.edu" required>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Role</label>
+                            <select name="role" class="form-control" required>
+                                <option value="STUDENT">STUDENT</option>
+                                <option value="FACULTY">FACULTY</option>
+                                <option value="ADMIN">ADMINISTRATOR</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Department</label>
+                            <input type="text" name="department" class="form-control" value="Computer Science & Engineering" required>
+                        </div>
+
+                        <div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+                                <span>Create User</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Filter and Search -->
+            <form th:action="@{/admin/users}" method="get" class="filter-bar">
+                <div class="search-input-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
+                    <input type="text" name="search" class="form-control" placeholder="Search by name, username, email, code..." th:value="${search}">
+                </div>
+
+                <select name="role" class="form-control" style="width: auto;">
+                    <option value="" th:selected="${roleFilter == null or roleFilter.isEmpty()}">All Roles</option>
+                    <option value="ADMIN" th:selected="${roleFilter == 'ADMIN'}">Administrators</option>
+                    <option value="FACULTY" th:selected="${roleFilter == 'FACULTY'}">Faculty Members</option>
+                    <option value="STUDENT" th:selected="${roleFilter == 'STUDENT'}">Students</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                <a th:href="@{/admin/users}" class="btn btn-outline btn-sm">Reset</a>
+            </form>
+
+            <!-- Users Table -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Active Platform Identities</h2>
+                        <span class="panel-subtitle" th:text="${'Registered Accounts: ' + users.size()}">Accounts</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Account Code</th>
+                                <th>Full Name</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Account Status</th>
+                                <th>Privilege Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${users == null or users.empty}">
+                                <td colspan="8" style="text-align:center; padding:3rem; color:var(--text-muted);">
+                                    <div class="empty-state">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+                                        <div class="empty-title">No Users Found</div>
+                                        <div class="empty-desc">No accounts match the current filter criteria.</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:each="u : ${users}">
+                                <td th:text="${u.id}">1</td>
+                                <td><span class="code-badge" th:text="${u.userCode}">ADM-001</span></td>
+                                <td style="font-weight:600;" th:text="${u.fullName}">Dave Miller</td>
+                                <td th:text="${u.username}">admin</td>
+                                <td>
+                                    <form th:action="@{'/admin/users/' + ${u.id} + '/role'}" method="post" style="display:inline;">
+                                        <select name="role" onchange="this.form.submit()" style="padding:0.25rem 0.5rem; font-size:0.75rem; border-radius:var(--radius-sm); background:var(--bg-primary); color:var(--text-primary); border:1px solid var(--border-color);">
+                                            <option value="STUDENT" th:selected="${u.role.name() == 'STUDENT'}">STUDENT</option>
+                                            <option value="FACULTY" th:selected="${u.role.name() == 'FACULTY'}">FACULTY</option>
+                                            <option value="ADMIN" th:selected="${u.role.name() == 'ADMIN'}">ADMIN</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td th:text="${u.department}">Cybersecurity</td>
+                                <td>
+                                    <span class="badge" th:classappend="${u.active ? 'badge-success' : 'badge-critical'}" th:text="${u.status}">ACTIVE</span>
+                                </td>
+                                <td>
+                                    <form th:action="@{'/admin/users/' + ${u.id} + '/toggle-status'}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-outline btn-sm" th:text="${u.active ? 'Deactivate' : 'Activate'}">
+                                            Toggle
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

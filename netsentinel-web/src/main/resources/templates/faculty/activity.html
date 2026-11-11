@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Activity Audit — NetSentinel</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('activity')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Faculty Session Audit', 'Historical Log of Attendance and Gradebook Mutations')}"></div>
+
+        <main class="app-content">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Authenticated Operational History</h2>
+                        <span class="panel-subtitle">Logged transactions across all instructional modules</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Action</th>
+                                <th>Target Route</th>
+                                <th>Outcome</th>
+                                <th>IP Address</th>
+                                <th>Transaction Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="a : ${activities}">
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${#temporals.format(a.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-11-07 09:12:15</td>
+                                <td><span class="code-badge" th:text="${a.action}">ATTENDANCE_RECORD</span></td>
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${a.targetResource}">/faculty/attendance</td>
+                                <td>
+                                    <span class="badge" th:classappend="${a.outcome == 'SUCCESS' ? 'badge-success' : (a.outcome == 'BLOCKED' ? 'badge-blocked' : 'badge-high')}" th:text="${a.outcome}">SUCCESS</span>
+                                </td>
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${a.ipAddress}">192.168.1.45</td>
+                                <td style="color:var(--text-secondary); font-size:0.8rem;" th:text="${a.details}">Attendance recorded</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

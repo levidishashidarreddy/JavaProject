@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Subjects — NetSentinel Faculty</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('subjects')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Instructional Curriculum Assignments', 'Assigned Courses & Lecture Modules')}"></div>
+
+        <main class="app-content">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Assigned Course Roster</h2>
+                        <span class="panel-subtitle">Access rights and mutations are checked against these subject keys</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Credits</th>
+                                <th>Assigned Term</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="s : ${assignedSubjects}">
+                                <td><span class="code-badge" th:text="${s.subjectCode}">CS301</span></td>
+                                <td style="font-weight:600;" th:text="${s.subjectName}">Course Title</td>
+                                <td th:text="${s.credits + ' Credits'}">4 Credits</td>
+                                <td th:text="${s.assignedSemester}">Fall 2026</td>
+                                <td>
+                                    <div style="display:flex; gap:0.5rem;">
+                                        <a th:href="@{/faculty/students(subjectId=${s.subjectId})}" class="btn btn-outline btn-sm">Enrolled Roster</a>
+                                        <a th:href="@{/faculty/attendance(subjectId=${s.subjectId})}" class="btn btn-outline btn-sm">Attendance</a>
+                                        <a th:href="@{/faculty/marks(subjectId=${s.subjectId})}" class="btn btn-primary btn-sm">Marks</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

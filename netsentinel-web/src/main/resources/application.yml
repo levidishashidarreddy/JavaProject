@@ -1,0 +1,45 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    session:
+      timeout: 120m
+      tracking-modes: cookie
+      cookie:
+        name: NETSENTINEL_SESSION
+
+spring:
+  application:
+    name: netsentinel-platform
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:database/netsentinel.db
+  thymeleaf:
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    check-template-location: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: true
+
+logging:
+  level:
+    root: INFO
+    com.netsentinel: DEBUG
+    org.springframework.jdbc: INFO
+
+netsentinel:
+  firebase:
+    enabled: ${FIREBASE_ENABLED:true}
+    config-path: ${FIREBASE_CONFIG_PATH:}
+    database-url: ${FIREBASE_DATABASE_URL:https://netsentinel-1ded9-default-rtdb.firebaseio.com}
+    project-id: ${FIREBASE_PROJECT_ID:netsentinel-1ded9}
+    api-key: ${FIREBASE_API_KEY:}
+    auth-domain: ${FIREBASE_AUTH_DOMAIN:netsentinel-1ded9.firebaseapp.com}
+    storage-bucket: ${FIREBASE_STORAGE_BUCKET:netsentinel-1ded9.firebasestorage.app}
+    messaging-sender-id: ${FIREBASE_MESSAGING_SENDER_ID:}
+    app-id: ${FIREBASE_APP_ID:}
+    measurement-id: ${FIREBASE_MEASUREMENT_ID:}

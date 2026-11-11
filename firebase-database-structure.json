@@ -1,0 +1,362 @@
+{
+  "_comment": "NetSentinel Realtime Database Schema Structure - Canonical JSON Tree",
+  "systemSettings": {
+    "platformVersion": "1.0.0-PROD",
+    "environment": "PRODUCTION_HYBRID",
+    "persistenceEngine": "Firebase Realtime Database + SQLite Local Replica",
+    "threatSurveillanceActive": true,
+    "lastConfigSync": "2026-11-08T11:00:00Z"
+  },
+  "roles": {
+    "STUDENT": {
+      "name": "STUDENT",
+      "description": "Enrolled student account with read-only access to own marks and attendance",
+      "permittedPrefixes": ["/student/"],
+      "allowedActions": ["AUTH_LOGIN", "VIEW_PROFILE", "VIEW_MARKS", "VIEW_ATTENDANCE"]
+    },
+    "FACULTY": {
+      "name": "FACULTY",
+      "description": "Faculty instructor account authorized to manage assigned course grades and attendance",
+      "permittedPrefixes": ["/faculty/"],
+      "allowedActions": ["AUTH_LOGIN", "VIEW_SUBJECTS", "VIEW_STUDENTS", "ATTENDANCE_RECORD", "MARKS_RECORD", "MARKS_UPDATE"]
+    },
+    "ADMIN": {
+      "name": "ADMIN",
+      "description": "Security Operations Center Administrator with full oversight and rule management",
+      "permittedPrefixes": ["/admin/", "/api/v1/"],
+      "allowedActions": ["ALL"]
+    }
+  },
+  "users": {
+    "student101": {
+      "id": 1,
+      "userCode": "STU-2026-101",
+      "username": "student101",
+      "fullName": "Rahul Sharma",
+      "email": "student101@campus.netsentinel.edu",
+      "role": "STUDENT",
+      "department": "Computer Science & Engineering",
+      "status": "ACTIVE",
+      "createdAt": "2026-08-15T09:00:00Z",
+      "updatedAt": "2026-11-08T11:00:00Z",
+      "createdBy": "SYSTEM_PROVISIONER"
+    },
+    "student102": {
+      "id": 2,
+      "userCode": "STU-2026-102",
+      "username": "student102",
+      "fullName": "Priya Patel",
+      "email": "student102@campus.netsentinel.edu",
+      "role": "STUDENT",
+      "department": "Computer Science & Engineering",
+      "status": "ACTIVE",
+      "createdAt": "2026-08-15T09:15:00Z",
+      "updatedAt": "2026-11-08T11:00:00Z",
+      "createdBy": "SYSTEM_PROVISIONER"
+    },
+    "faculty101": {
+      "id": 3,
+      "userCode": "FAC-2026-F101",
+      "username": "faculty101",
+      "fullName": "Prof. Alan Turing",
+      "email": "faculty101@campus.netsentinel.edu",
+      "role": "FACULTY",
+      "department": "Computer Science & Engineering",
+      "status": "ACTIVE",
+      "createdAt": "2026-08-01T10:00:00Z",
+      "updatedAt": "2026-11-08T11:00:00Z",
+      "createdBy": "SYSTEM_PROVISIONER"
+    },
+    "faculty102": {
+      "id": 4,
+      "userCode": "FAC-2026-F102",
+      "username": "faculty102",
+      "fullName": "Dr. Sarah Jenkins",
+      "email": "faculty102@campus.netsentinel.edu",
+      "role": "FACULTY",
+      "department": "Mathematics & Computing",
+      "status": "ACTIVE",
+      "createdAt": "2026-08-01T10:30:00Z",
+      "updatedAt": "2026-11-08T11:00:00Z",
+      "createdBy": "SYSTEM_PROVISIONER"
+    },
+    "admin01": {
+      "id": 5,
+      "userCode": "ADM-2026-A001",
+      "username": "admin01",
+      "fullName": "Chief Dave Miller",
+      "email": "admin01@security.netsentinel.edu",
+      "role": "ADMIN",
+      "department": "Cybersecurity Operations Center",
+      "status": "ACTIVE",
+      "createdAt": "2026-07-15T08:00:00Z",
+      "updatedAt": "2026-11-08T11:00:00Z",
+      "createdBy": "SYSTEM_PROVISIONER"
+    }
+  },
+  "studentProfiles": {
+    "student101": {
+      "userId": 1,
+      "userCode": "STU-2026-101",
+      "enrolledSemester": 5,
+      "academicYear": "2026-2027",
+      "major": "Computer Science & Engineering",
+      "enrolledSubjects": ["CS301", "CS305", "CS402", "CS405"]
+    },
+    "student102": {
+      "userId": 2,
+      "userCode": "STU-2026-102",
+      "enrolledSemester": 5,
+      "academicYear": "2026-2027",
+      "major": "Computer Science & Engineering",
+      "enrolledSubjects": ["CS301", "CS305"]
+    }
+  },
+  "facultyProfiles": {
+    "faculty101": {
+      "userId": 3,
+      "userCode": "FAC-2026-F101",
+      "title": "Professor",
+      "specialization": "Network Security & Theoretical Algorithms",
+      "assignedSubjects": ["CS301", "CS402"]
+    },
+    "faculty102": {
+      "userId": 4,
+      "userCode": "FAC-2026-F102",
+      "title": "Associate Professor",
+      "specialization": "Operating Systems & Database Kernels",
+      "assignedSubjects": ["CS305", "CS405"]
+    }
+  },
+  "attendance": {
+    "ATT_EXAMPLE_101": {
+      "id": 1,
+      "studentId": 1,
+      "studentUsername": "student101",
+      "subjectId": 1,
+      "subjectCode": "CS301",
+      "facultyId": 3,
+      "facultyUsername": "faculty101",
+      "date": "2026-11-08",
+      "status": "PRESENT",
+      "remarks": "On-time lecture attendance",
+      "recordedAt": "2026-11-08T09:15:00Z",
+      "createdBy": "faculty101"
+    }
+  },
+  "marks": {
+    "MARK_EXAMPLE_101": {
+      "id": 1,
+      "studentId": 1,
+      "studentUsername": "student101",
+      "subjectId": 1,
+      "subjectCode": "CS301",
+      "facultyId": 3,
+      "facultyUsername": "faculty101",
+      "examType": "MIDTERM",
+      "score": 88.5,
+      "maxScore": 100.0,
+      "percentage": 88.5,
+      "recordedAt": "2026-11-08T10:00:00Z",
+      "createdBy": "faculty101"
+    }
+  },
+  "academicRecords": {
+    "CS301": {
+      "code": "CS301",
+      "name": "Data Structures & Algorithms",
+      "credits": 4,
+      "semester": 5,
+      "department": "Computer Science & Engineering",
+      "facultyAssigned": "faculty101"
+    },
+    "CS305": {
+      "code": "CS305",
+      "name": "Operating Systems & Kernels",
+      "credits": 4,
+      "semester": 5,
+      "department": "Computer Science & Engineering",
+      "facultyAssigned": "faculty102"
+    },
+    "CS402": {
+      "code": "CS402",
+      "name": "Network Security & Cryptography",
+      "credits": 3,
+      "semester": 7,
+      "department": "Computer Science & Engineering",
+      "facultyAssigned": "faculty101"
+    },
+    "CS405": {
+      "code": "CS405",
+      "name": "Database Management Systems",
+      "credits": 3,
+      "semester": 5,
+      "department": "Computer Science & Engineering",
+      "facultyAssigned": "faculty102"
+    }
+  },
+  "activityLogs": {
+    "LOG_REQ_20261108_001": {
+      "id": 1,
+      "actorId": 5,
+      "actorUsername": "admin01",
+      "actorRole": "ADMIN",
+      "action": "AUTH_LOGIN",
+      "targetType": "ENDPOINT",
+      "targetResource": "/login",
+      "outcome": "SUCCESS",
+      "ipAddress": "192.168.1.10",
+      "requestId": "REQ-20261108-001",
+      "timestamp": "2026-11-08T08:30:00Z"
+    }
+  },
+  "securityEvents": {
+    "SEC_EVT_20261108_001": {
+      "id": 1,
+      "ruleCode": "RULE-ATT-001",
+      "actorUsername": "student101",
+      "actorRole": "STUDENT",
+      "targetResource": "/faculty/attendance/record",
+      "outcome": "BLOCKED",
+      "severity": "HIGH",
+      "timestamp": "2026-11-08T09:35:10Z"
+    }
+  },
+  "incidents": {
+    "INC-2026-0091": {
+      "id": 1,
+      "incidentNumber": "INC-2026-0091",
+      "title": "Unauthorized Attendance Modification Intercepted",
+      "category": "AUTHORIZATION",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "actorUsername": "student101",
+      "actorRole": "STUDENT",
+      "targetResource": "/faculty/attendance/record",
+      "ruleCode": "RULE-ATT-001",
+      "confidenceScore": 96,
+      "reason": "Student account attempted to inject attendance modification for subject CS301 without faculty credentials.",
+      "insightExplanation": "NetSentinel Behavioral Engine observed direct POST invocation to faculty attendance mutation route originating from an unprivileged STUDENT session. Deviation from standard portal navigational graph: 100%. Signature matches parameter tampering.",
+      "recommendedAction": "1. Verify student IP address 192.168.1.188.\n2. Review audit logs for adjacent session tokens.\n3. Keep attendance state immutable until academic committee review.",
+      "assignedTo": "admin01",
+      "createdAt": "2026-11-08T09:35:11Z",
+      "updatedAt": "2026-11-08T09:35:11Z"
+    }
+  },
+  "incidentTimeline": {
+    "INC-2026-0091": {
+      "EVT_1": {
+        "eventType": "ANOMALY_DETECTED",
+        "actorUsername": "SYSTEM_ENGINE",
+        "notes": "Rule RULE-ATT-001 triggered: Unauthorized student attendance modification intercepted.",
+        "timestamp": "2026-11-08T09:35:11Z"
+      },
+      "EVT_2": {
+        "eventType": "INCIDENT_CREATED",
+        "actorUsername": "SYSTEM_ENGINE",
+        "notes": "Incident INC-2026-0091 registered with HIGH severity.",
+        "timestamp": "2026-11-08T09:35:11Z"
+      }
+    }
+  },
+  "detectionRules": {
+    "RULE-ATT-001": {
+      "ruleCode": "RULE-ATT-001",
+      "ruleName": "Unauthorized Attendance Modification",
+      "category": "AUTHORIZATION",
+      "description": "Detects attendance alteration by students or unauthorized faculty not assigned to target subject.",
+      "enabled": 1,
+      "threshold": 1,
+      "timeWindowSeconds": 30,
+      "severity": "HIGH",
+      "updatedAt": "2026-11-08T00:00:00Z"
+    },
+    "RULE-MOD-002": {
+      "ruleCode": "RULE-MOD-002",
+      "ruleName": "Bulk Academic Record Modification",
+      "category": "INTEGRITY",
+      "description": "Monitors velocity of grade or attendance modifications exceeding configurable threshold in a sliding window.",
+      "enabled": 1,
+      "threshold": 3,
+      "timeWindowSeconds": 60,
+      "severity": "CRITICAL",
+      "updatedAt": "2026-11-08T00:00:00Z"
+    },
+    "RULE-PRV-003": {
+      "ruleCode": "RULE-PRV-003",
+      "ruleName": "Unauthorized Privilege Changes",
+      "category": "ACCESS_CONTROL",
+      "description": "Detects unauthorized role manipulation, privilege elevation, or account status mutation by non-admins.",
+      "enabled": 1,
+      "threshold": 1,
+      "timeWindowSeconds": 30,
+      "severity": "CRITICAL",
+      "updatedAt": "2026-11-08T00:00:00Z"
+    },
+    "RULE-REC-004": {
+      "ruleCode": "RULE-REC-004",
+      "ruleName": "Unauthorized Student Record Access",
+      "category": "ACCESS_CONTROL",
+      "description": "Detects access to student academic records outside of ownership boundary or faculty course assignment.",
+      "enabled": 1,
+      "threshold": 1,
+      "timeWindowSeconds": 30,
+      "severity": "HIGH",
+      "updatedAt": "2026-11-08T00:00:00Z"
+    },
+    "RULE-TIM-005": {
+      "ruleCode": "RULE-TIM-005",
+      "ruleName": "Off-Hours Administrative Activity",
+      "category": "ANOMALY",
+      "description": "Detects high-impact administrative or gradebook operations conducted between 02:00 AM and 05:00 AM.",
+      "enabled": 1,
+      "threshold": 2,
+      "timeWindowSeconds": 120,
+      "severity": "MEDIUM",
+      "updatedAt": "2026-11-08T00:00:00Z"
+    },
+    "RULE-BRT-006": {
+      "ruleCode": "RULE-BRT-006",
+      "ruleName": "Brute Force Credential Abuse",
+      "category": "AUTHENTICATION",
+      "description": "Flags repeated failed authentication attempts against campus accounts from the same source.",
+      "enabled": 1,
+      "threshold": 3,
+      "timeWindowSeconds": 60,
+      "severity": "HIGH",
+      "updatedAt": "2026-11-08T00:00:00Z"
+    }
+  },
+  "simulations": {
+    "SIM_EXAMPLE_01": {
+      "id": 1,
+      "simulationType": "UNAUTHORIZED_ATTENDANCE",
+      "detected": true,
+      "incidentId": 1,
+      "summary": "Triggered rule RULE-ATT-001 -> Unauthorized Attendance Modification (HIGH)",
+      "runAt": "2026-11-08T10:30:00Z"
+    }
+  },
+  "notifications": {
+    "NOTIF_1": {
+      "id": 1,
+      "userId": 5,
+      "title": "High Severity Security Alert",
+      "message": "Unauthorized attendance alteration intercepted for subject CS301 by student101.",
+      "severity": "HIGH",
+      "readStatus": false,
+      "createdAt": "2026-11-08T09:35:12Z"
+    }
+  },
+  "auditLogs": {
+    "AUDIT_20261108_001": {
+      "id": 1,
+      "actorUsername": "admin01",
+      "action": "CONFIG_UPDATE",
+      "target": "detectionRules/RULE-MOD-002",
+      "details": "Threshold calibrated to 3 events per 60 seconds",
+      "timestamp": "2026-11-08T11:00:00Z"
+    }
+  }
+}
+

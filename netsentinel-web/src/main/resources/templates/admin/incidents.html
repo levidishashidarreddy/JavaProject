@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incident Management — NetSentinel SOC</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('incidents')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Security Incident Management', 'Triage, Filter, & Correlate Behavioral Anomalies')}"></div>
+
+        <main class="app-content">
+            <!-- Filter Bar -->
+            <form th:action="@{/admin/incidents}" method="get" class="filter-bar">
+                <div class="search-input-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
+                    <input type="text" name="search" class="form-control" placeholder="Search by ID, title, actor or resource..." th:value="${search}">
+                </div>
+
+                <select name="category" class="form-control" style="width: auto;">
+                    <option value="" th:selected="${category == null or category.isEmpty()}">All Categories</option>
+                    <option value="AUTHORIZATION" th:selected="${category == 'AUTHORIZATION'}">Authorization</option>
+                    <option value="INTEGRITY" th:selected="${category == 'INTEGRITY'}">Integrity</option>
+                    <option value="ACCESS_CONTROL" th:selected="${category == 'ACCESS_CONTROL'}">Access Control</option>
+                    <option value="INFORMATION_DISCLOSURE" th:selected="${category == 'INFORMATION_DISCLOSURE'}">Info Disclosure</option>
+                    <option value="ANOMALY" th:selected="${category == 'ANOMALY'}">Anomaly</option>
+                    <option value="AUTHENTICATION" th:selected="${category == 'AUTHENTICATION'}">Authentication</option>
+                </select>
+
+                <select name="severity" class="form-control" style="width: auto;">
+                    <option value="" th:selected="${severity == null or severity.isEmpty()}">All Severities</option>
+                    <option value="CRITICAL" th:selected="${severity == 'CRITICAL'}">Critical</option>
+                    <option value="HIGH" th:selected="${severity == 'HIGH'}">High</option>
+                    <option value="MEDIUM" th:selected="${severity == 'MEDIUM'}">Medium</option>
+                    <option value="LOW" th:selected="${severity == 'LOW'}">Low</option>
+                </select>
+
+                <select name="status" class="form-control" style="width: auto;">
+                    <option value="" th:selected="${status == null or status.isEmpty()}">All Statuses</option>
+                    <option value="OPEN" th:selected="${status == 'OPEN'}">Open</option>
+                    <option value="UNDER_INVESTIGATION" th:selected="${status == 'UNDER_INVESTIGATION'}">Under Investigation</option>
+                    <option value="RESOLVED" th:selected="${status == 'RESOLVED'}">Resolved</option>
+                    <option value="FALSE_POSITIVE" th:selected="${status == 'FALSE_POSITIVE'}">False Positive</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                <a th:href="@{/admin/incidents}" class="btn btn-outline btn-sm">Reset</a>
+            </form>
+
+            <!-- Incidents Table -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Security Incidents Repository</h2>
+                        <span class="panel-subtitle" th:text="${'Displaying ' + incidents.size() + ' of ' + totalCount + ' security incidents'}">Displaying incidents</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Incident ID</th>
+                                <th>Incident Title</th>
+                                <th>Category</th>
+                                <th>Severity</th>
+                                <th>Status</th>
+                                <th>Actor Username</th>
+                                <th>Rule Code</th>
+                                <th>Confidence</th>
+                                <th>Created Timestamp</th>
+                                <th>Investigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${incidents.empty}">
+                                <td colspan="10" style="text-align:center; padding:3rem; color:var(--text-muted);">
+                                    <div class="empty-state">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+                                        <div class="empty-title">No Incidents Found</div>
+                                        <div class="empty-desc">No security events match the current filter criteria. Run a simulation in the Simulation Lab to generate test incidents.</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:each="inc : ${incidents}">
+                                <td><span class="code-badge" th:text="${inc.incidentNumber}">INC-2026-0091</span></td>
+                                <td style="font-weight:600;" th:text="${inc.title}">Unauthorized Attendance Modification</td>
+                                <td><span class="badge badge-medium" th:text="${inc.category}">AUTHORIZATION</span></td>
+                                <td>
+                                    <span class="badge" th:classappend="${inc.severity == 'CRITICAL' ? 'badge-critical' : (inc.severity == 'HIGH' ? 'badge-high' : 'badge-medium')}" th:text="${inc.severity}">HIGH</span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${inc.status == 'OPEN' ? 'badge-high' : (inc.status == 'UNDER_INVESTIGATION' ? 'badge-medium' : 'badge-success')}" th:text="${inc.status}">OPEN</span>
+                                </td>
+                                <td th:text="${inc.actorUsername + ' (' + inc.actorRole + ')'}">student (STUDENT)</td>
+                                <td><span class="code-badge" th:text="${inc.ruleCode}">RULE-ATT-001</span></td>
+                                <td style="font-weight:700; color:var(--accent-teal);" th:text="${inc.confidenceScore + '%'}">96%</td>
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${#temporals.format(inc.createdAt, 'yyyy-MM-dd HH:mm')}">2026-11-07 09:35</td>
+                                <td>
+                                    <a th:href="@{'/admin/incidents/' + ${inc.id}}" class="btn btn-primary btn-sm">
+                                        Investigate
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="panel-body" style="padding-top:0;" th:if="${totalPages > 1}">
+                    <div class="pagination">
+                        <a th:if="${currentPage > 1}" th:href="@{/admin/incidents(page=${currentPage - 1}, search=${search}, category=${category}, severity=${severity}, status=${status})}" class="page-btn">Prev</a>
+                        <span th:each="p : ${#numbers.sequence(1, totalPages)}">
+                            <a th:href="@{/admin/incidents(page=${p}, search=${search}, category=${category}, severity=${severity}, status=${status})}" class="page-btn" th:classappend="${p == currentPage ? 'active' : ''}" th:text="${p}">1</a>
+                        </span>
+                        <a th:if="${currentPage < totalPages}" th:href="@{/admin/incidents(page=${currentPage + 1}, search=${search}, category=${category}, severity=${severity}, status=${status})}" class="page-btn">Next</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

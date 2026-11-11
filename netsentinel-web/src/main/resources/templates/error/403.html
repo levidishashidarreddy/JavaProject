@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 Access Denied — NetSentinel Security</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg-primary); padding:1.5rem;">
+
+<div class="panel-card" style="max-width:520px; width:100%; text-align:center; padding:2.5rem; border-top:4px solid var(--danger-red);">
+    <div style="width:64px; height:64px; border-radius:50%; background:var(--danger-subtle); color:var(--danger-red); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" x2="19.07" y1="4.93" y2="19.07"></line></svg>
+    </div>
+
+    <span class="badge badge-critical" style="margin-bottom:0.75rem;">SECURITY BARRIER INTERCEPTION</span>
+    <h1 style="font-size:1.75rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">403 — Unauthorized Access</h1>
+    <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1.5rem;">
+        Your authenticated session does not hold the mandatory security clearance required to navigate this restricted academic zone. This access breach attempt has been recorded in the NetSentinel audit stream.
+    </p>
+
+    <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; margin-bottom:1.5rem; text-align:left; font-size:0.8rem;">
+        <div style="color:var(--text-muted); font-size:0.72rem; text-transform:uppercase; font-weight:700;">Interception Details:</div>
+        <div style="margin-top:0.25rem; font-family:var(--font-mono); color:var(--danger-red);" th:text="${deniedReason != null ? deniedReason : 'Restricted Role Zone'}">Role permission fault</div>
+    </div>
+
+    <div style="display:flex; justify-content:center; gap:0.75rem;">
+        <a href="/" class="btn btn-primary">Return to Home Portal</a>
+        <a href="/logout" class="btn btn-outline">Switch Account</a>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

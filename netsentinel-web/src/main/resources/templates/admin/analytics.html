@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics & Reports — NetSentinel SOC</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('analytics')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Security Analytics & Compliance Reports', 'Longitudinal Threat Analytics, Forensics Breakdown, & Export')}"></div>
+
+        <main class="app-content">
+            <!-- Top Controls: Date Filters and Multi-format Exports -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <!-- Date Filters -->
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <span style="font-size:0.78rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Time Filter:</span>
+                    <a th:href="@{/admin/analytics(range='ALL')}" class="btn btn-sm" th:classappend="${selectedRange == 'ALL' ? 'btn-primary' : 'btn-outline'}">All Time</a>
+                    <a th:href="@{/admin/analytics(range='TODAY')}" class="btn btn-sm" th:classappend="${selectedRange == 'TODAY' ? 'btn-primary' : 'btn-outline'}">Today</a>
+                    <a th:href="@{/admin/analytics(range='7_DAYS')}" class="btn btn-sm" th:classappend="${selectedRange == '7_DAYS' ? 'btn-primary' : 'btn-outline'}">Last 7 Days</a>
+                    <a th:href="@{/admin/analytics(range='30_DAYS')}" class="btn btn-sm" th:classappend="${selectedRange == '30_DAYS' ? 'btn-primary' : 'btn-outline'}">Last 30 Days</a>
+                </div>
+
+                <!-- Export Action Buttons -->
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <a th:href="@{/admin/analytics/export/incidents.pdf}" class="btn btn-outline btn-sm" title="Export Security Incidents PDF">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+                        <span>Incidents (PDF)</span>
+                    </a>
+                    <a th:href="@{/admin/analytics/export/incidents.csv}" class="btn btn-outline btn-sm" title="Export Security Incidents CSV">
+                        <span>Incidents (CSV)</span>
+                    </a>
+                    <a th:href="@{/admin/analytics/export/activity.pdf}" class="btn btn-outline btn-sm" title="Export Activity Audit Trail PDF">
+                        <span>Audit Log (PDF)</span>
+                    </a>
+                    <a th:href="@{/admin/analytics/export/health.pdf}" class="btn btn-primary btn-sm" title="Export Campus Security Health Report">
+                        <span>Health Report (PDF)</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Risk Index Banner & Transparent Health Metric -->
+            <div class="panel-card" style="background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary)); border: 1px solid var(--border-color); margin-top:1rem;">
+                <div class="panel-body" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.5rem; padding:1.75rem;">
+                    <div style="display:flex; flex-direction:column; gap:0.35rem;">
+                        <span class="metric-label" style="letter-spacing:0.08em;">Campus Security Health Score</span>
+                        <div style="display:flex; align-items:baseline; gap:0.5rem;">
+                            <span style="font-size:2.5rem; font-weight:800;" th:style="'color:' + ${metrics['securityHealth']['color']}" th:text="${metrics['healthScore']}">85</span>
+                            <span style="font-size:1.1rem; color:var(--text-muted);">/ 100</span>
+                            <span class="badge" th:style="'background:' + ${metrics['securityHealth']['color']} + '22; color:' + ${metrics['securityHealth']['color']}" style="margin-left:0.5rem;" th:text="${metrics['healthStatus']}">SECURE</span>
+                        </div>
+                        <p style="font-size:0.8rem; color:var(--text-muted); max-width:480px; margin-top:0.25rem;" th:text="${metrics['securityHealth']['description']}">
+                            Calculated dynamically based on active critical anomalies, open investigations, and off-hours transaction variance.
+                        </p>
+                    </div>
+
+                    <div style="display:flex; gap:1.5rem;">
+                        <div style="text-align:right;">
+                            <span class="metric-label">Monitored Accounts</span>
+                            <div style="font-size:1.5rem; font-weight:700; color:var(--text-primary);" th:text="${metrics['totalUsers']}">5</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span class="metric-label">Active Rules</span>
+                            <div style="font-size:1.5rem; font-weight:700; color:var(--accent-teal);" th:text="${metrics['activeRulesCount']}">6</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span class="metric-label">Threat Index</span>
+                            <div style="font-size:1.5rem; font-weight:700; color:var(--warning-amber);" th:text="${metrics['threatIndex']}">15</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-Column Analytics Charts -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem;">
+                <!-- Severity Breakdown -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Incident Severity Distribution</h3>
+                    </div>
+                    <div class="panel-body" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.25rem; min-height:220px;">
+                        <div id="severityDonutChart" 
+                             th:data-critical="${metrics['highCriticalIncidents']}"
+                             th:data-high="${metrics['openIncidents']}"
+                             th:data-medium="1"
+                             th:data-low="0">
+                        </div>
+                        <div style="display:flex; gap:1rem; font-size:0.75rem;">
+                            <span style="color:#DC2626; font-weight:700;">Critical</span>
+                            <span style="color:#52525B; font-weight:600;">High</span>
+                            <span style="color:#71717A; font-weight:600;">Medium</span>
+                            <span style="color:#A1A1AA; font-weight:600;">Low</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown Table -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Incidents by Security Category</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Threat Category</th>
+                                    <th>Incident Count</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="cat : ${metrics['categoryDistribution']}">
+                                    <td><span class="code-badge" th:text="${cat['category']}">AUTHORIZATION</span></td>
+                                    <td style="font-weight:700;" th:text="${cat['count']}">1</td>
+                                    <td>
+                                        <span class="badge badge-low">MONITORED</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-Column Tables: Top Triggered Rules & User-Wise Summary -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-top:1.25rem;">
+                <!-- Top Triggered Rules -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Most Frequently Triggered Detection Rules</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Rule Code</th>
+                                    <th>Description</th>
+                                    <th>Severity</th>
+                                    <th>Triggers</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${metrics['topTriggeredRules'] == null or metrics['topTriggeredRules'].empty}">
+                                    <td colspan="4" style="text-align:center; color:var(--text-muted);">No rule triggers recorded.</td>
+                                </tr>
+                                <tr th:each="r : ${metrics['topTriggeredRules']}">
+                                    <td><span class="code-badge" th:text="${r['rule_code']}">RULE-ATT-001</span></td>
+                                    <td style="font-size:0.8rem; color:var(--text-primary);" th:text="${r['title']}">Title</td>
+                                    <td><span class="badge" th:classappend="${r['severity'] == 'CRITICAL' ? 'badge-critical' : 'badge-high'}" th:text="${r['severity']}">HIGH</span></td>
+                                    <td style="font-weight:700;" th:text="${r['count']}">1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- User-Wise Activity Summary -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">User-Wise Transaction Audit Summary</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Total Operations</th>
+                                    <th>Blocked Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${metrics['userWiseSummary'] == null or metrics['userWiseSummary'].empty}">
+                                    <td colspan="4" style="text-align:center; color:var(--text-muted);">No activity records found.</td>
+                                </tr>
+                                <tr th:each="u : ${metrics['userWiseSummary']}">
+                                    <td style="font-weight:600;" th:text="${u['actor_username']}">user</td>
+                                    <td><span class="badge badge-low" th:text="${u['actor_role']}">STUDENT</span></td>
+                                    <td style="font-weight:700;" th:text="${u['total_actions']}">5</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${u['blocked_count'] != null and u['blocked_count'] > 0 ? 'badge-critical' : 'badge-low'}" th:text="${u['blocked_count']}">0</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hourly Activity Ingestion -->
+            <div class="panel-card" style="margin-top:1.25rem;">
+                <div class="panel-header">
+                    <div>
+                        <h3 class="panel-title">24-Hour Behavioral Activity Ingestion</h3>
+                        <span class="panel-subtitle">Transaction frequencies processed across academic and administrative APIs</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div id="activityHourlyChart"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

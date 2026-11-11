@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Academic Overview — NetSentinel</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <div th:replace="~{layout/fragments :: appSidebar('dashboard')}"></div>
+
+    <!-- Main Content -->
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Student Academic Overview', 'Fall Semester 2026-2027 • Enrolled Curricula')}"></div>
+
+        <main class="app-content">
+            <!-- Academic Summary Metric Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card accent-info">
+                    <div class="metric-top">
+                        <span class="metric-label">Enrolled Courses</span>
+                        <div class="metric-icon-box info">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path></svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" th:text="${overview['enrolledSubjectsCount']}">4</div>
+                    <div class="metric-sub">Full-time Academic Load</div>
+                </div>
+
+                <div class="metric-card accent-success">
+                    <div class="metric-top">
+                        <span class="metric-label">Attendance Rate</span>
+                        <div class="metric-icon-box success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" th:text="${overview['attendancePercentage'] + '%'}">88.5%</div>
+                    <div class="metric-sub" th:text="${overview['presentCount'] + ' of ' + overview['totalClasses'] + ' lectures attended'}">12 of 14 attended</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span class="metric-label">Average Performance</span>
+                        <div class="metric-icon-box">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" th:text="${overview['averageScore'] + '%'}">89.2%</div>
+                    <div class="metric-sub">Distinction Standing</div>
+                </div>
+
+                <div class="metric-card accent-warning">
+                    <div class="metric-top">
+                        <span class="metric-label">Portal Integrity Status</span>
+                        <div class="metric-icon-box warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" style="font-size:1.35rem; color:var(--accent-teal);">VERIFIED</div>
+                    <div class="metric-sub">Zero Academic Sanctions</div>
+                </div>
+            </div>
+
+            <!-- Enrolled Subjects Table -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">My Enrolled Subjects</h2>
+                        <span class="panel-subtitle">Official registration list for current semester</span>
+                    </div>
+                    <a href="/student/marks" class="btn btn-outline btn-sm">View Full Marks</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Credits</th>
+                                <th>Semester</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="e : ${overview['enrollments']}">
+                                <td><span class="code-badge" th:text="${e.subjectCode}">CS301</span></td>
+                                <td style="font-weight:600;" th:text="${e.subjectName}">Data Structures</td>
+                                <td th:text="${e.credits + ' Credits'}">4 Credits</td>
+                                <td th:text="${e.semester}">Fall 2026</td>
+                                <td><span class="badge badge-success" th:text="${e.enrollmentStatus}">ENROLLED</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Two-column recent activity and marks preview -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
+                <!-- Recent Attendance Preview -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Recent Attendance Logs</h3>
+                        <a href="/student/attendance" class="btn btn-outline btn-sm">Full Record</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                    <th>Faculty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="a : ${overview['recentAttendance']}">
+                                    <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${a.date}">2026-11-01</td>
+                                    <td><span class="code-badge" th:text="${a.subjectCode}">CS301</span></td>
+                                    <td>
+                                        <span class="badge" th:classappend="${a.status == 'PRESENT' ? 'badge-success' : (a.status == 'LATE' ? 'badge-high' : 'badge-critical')}" th:text="${a.status}">PRESENT</span>
+                                    </td>
+                                    <td th:text="${a.facultyName}">Prof. Turing</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Marks Preview -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Recent Exam & Lab Scores</h3>
+                        <a href="/student/marks" class="btn btn-outline btn-sm">Marks Sheet</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Exam Type</th>
+                                    <th>Score</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="m : ${overview['recentMarks']}">
+                                    <td><span class="code-badge" th:text="${m.subjectCode}">CS301</span></td>
+                                    <td th:text="${m.examType}">MIDTERM</td>
+                                    <td style="font-weight:700;" th:text="${m.score + ' / ' + m.maxScore}">88.5 / 100</td>
+                                    <td>
+                                        <span class="badge badge-success" th:text="${#numbers.formatDecimal(m.percentage, 1, 1) + '%'}">88.5%</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

@@ -1,0 +1,230 @@
+/* NetSentinel JavaFX Desktop Security Console — Strict Monochrome Enterprise Theme */
+
+.root {
+    -fx-base: #FFFFFF;
+    -fx-background: #FFFFFF;
+    -fx-control-inner-background: #FFFFFF;
+    -fx-text-fill: #09090B;
+    -fx-font-family: 'Segoe UI', -apple-system, sans-serif;
+    -fx-font-size: 13px;
+}
+
+.menu-bar {
+    -fx-background-color: #FAFAFA;
+    -fx-border-color: #E4E4E7;
+    -fx-border-width: 0 0 1 0;
+}
+
+.menu-bar .menu .label {
+    -fx-text-fill: #18181B;
+}
+
+.tool-bar {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E4E4E7;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 6 16;
+}
+
+.header-bar {
+    -fx-background-color: #FAFAFA;
+    -fx-border-color: #E4E4E7;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 12 20;
+}
+
+.header-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #09090B;
+}
+
+.header-sub {
+    -fx-font-size: 11px;
+    -fx-text-fill: #71717A;
+}
+
+.metric-panel {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 4, 0, 0, 1);
+}
+
+.metric-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #71717A;
+}
+
+.metric-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #18181B;
+}
+
+.metric-value-danger {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #DC2626;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #FAFAFA;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #FAFAFA;
+    -fx-border-color: #E4E4E7;
+    -fx-border-width: 0 0 2 0;
+    -fx-padding: 8 16;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #18181B;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #71717A;
+    -fx-font-weight: bold;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #09090B;
+}
+
+/* Table View */
+.table-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.table-view .column-header {
+    -fx-background-color: #FAFAFA;
+    -fx-border-color: #E4E4E7;
+    -fx-border-width: 0 1 1 0;
+    -fx-font-weight: bold;
+    -fx-text-fill: #52525B;
+    -fx-padding: 8;
+}
+
+.table-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #F4F4F5;
+    -fx-border-width: 0 0 1 0;
+    -fx-text-fill: #09090B;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #FAFAFA;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #F4F4F5;
+    -fx-text-fill: #09090B;
+}
+
+/* TreeView & ListView */
+.tree-view, .list-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.tree-cell, .list-cell {
+    -fx-text-fill: #09090B;
+    -fx-background-color: transparent;
+    -fx-padding: 4 8;
+}
+
+.tree-cell:selected, .list-cell:selected {
+    -fx-background-color: #F4F4F5;
+    -fx-text-fill: #09090B;
+}
+
+.btn-action {
+    -fx-background-color: #18181B;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.btn-action:hover {
+    -fx-background-color: #27272A;
+}
+
+.btn-danger {
+    -fx-background-color: #DC2626;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #B91C1C;
+}
+
+.btn-outline {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 6;
+    -fx-text-fill: #09090B;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+}
+
+.btn-outline:hover {
+    -fx-background-color: #F4F4F5;
+    -fx-border-color: #18181B;
+}
+
+.text-area {
+    -fx-background-color: #FAFAFA;
+    -fx-control-inner-background: #FAFAFA;
+    -fx-text-fill: #09090B;
+    -fx-font-family: 'Consolas', 'Courier New', monospace;
+    -fx-font-size: 12px;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 6;
+}
+
+.text-field, .combo-box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E4E4E7;
+    -fx-border-radius: 6;
+    -fx-padding: 5 8;
+}
+
+.badge-critical {
+    -fx-background-color: #FEF2F2;
+    -fx-text-fill: #DC2626;
+    -fx-font-weight: bold;
+    -fx-padding: 2 6;
+    -fx-background-radius: 4;
+}
+
+.badge-high {
+    -fx-background-color: #FEF2F2;
+    -fx-text-fill: #DC2626;
+    -fx-font-weight: bold;
+    -fx-padding: 2 6;
+    -fx-background-radius: 4;
+}
+
+.badge-success {
+    -fx-background-color: #F0FDF4;
+    -fx-text-fill: #16A34A;
+    -fx-font-weight: bold;
+    -fx-padding: 2 6;
+    -fx-background-radius: 4;
+}

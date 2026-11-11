@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Reusable Header Fragment -->
+<header th:fragment="appHeader(pageTitle, pageSub)" class="app-header">
+    <div class="header-left">
+        <button type="button" class="btn-icon mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle Navigation" style="display:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+        </button>
+        <div class="header-title-container">
+            <h1 class="header-page-title" th:text="${pageTitle}">NetSentinel Console</h1>
+            <span class="header-page-sub" th:text="${pageSub}">Continuous Anomaly Surveillance</span>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <!-- Live Engine Telemetry Pill -->
+        <div class="header-status-pill">
+            <span class="status-dot-pulse"></span>
+            <span style="color:var(--text-secondary); font-size: 0.72rem; font-weight:600;">ENGINE ACTIVE</span>
+        </div>
+
+        <!-- Firebase Cloud Telemetry Pill -->
+        <div class="header-status-pill" id="firebaseStatusPill" title="Firebase Realtime Database Cloud Sync">
+            <span class="status-dot-pulse" style="background:var(--accent-primary);"></span>
+            <span id="firebaseStatusIndicator" style="color:var(--text-secondary); font-size: 0.72rem; font-weight:600;">FIREBASE RTDB ACTIVE</span>
+        </div>
+
+
+        <!-- Notification Bell Dropdown -->
+        <div style="position:relative;">
+            <button type="button" class="btn-icon" id="notificationBellBtn" title="Security Notifications">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+                <span class="badge-count" th:if="${unreadCount != null and unreadCount > 0}" th:text="${unreadCount}">2</span>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="notificationDropdown" style="display:none; position:absolute; right:0; top:44px; width:340px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); z-index:150;">
+                <div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-weight:700; font-size:0.85rem;">Security Alerts</span>
+                    <button type="button" id="markAllReadBtn" class="btn btn-outline btn-sm" style="padding:0.2rem 0.5rem; font-size:0.7rem;">Mark Read</button>
+                </div>
+                <div style="max-height:280px; overflow-y:auto; padding:0.5rem;">
+                    <div th:if="${unreadNotifications == null or unreadNotifications.empty}" style="padding:1.5rem; text-align:center; color:var(--text-muted); font-size:0.8rem;">
+                        No pending unread alerts.
+                    </div>
+                    <div th:each="n : ${unreadNotifications}" style="padding:0.6rem 0.75rem; border-bottom:1px solid var(--border-light); display:flex; flex-direction:column; gap:0.25rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:600; font-size:0.78rem; color:var(--text-primary);" th:text="${n.title}">Alert</span>
+                            <span class="badge badge-critical" th:if="${n.severity == 'CRITICAL'}" th:text="${n.severity}">CRITICAL</span>
+                            <span class="badge badge-high" th:if="${n.severity == 'HIGH'}" th:text="${n.severity}">HIGH</span>
+                            <span class="badge badge-medium" th:if="${n.severity == 'MEDIUM' or n.severity == 'INFO'}" th:text="${n.severity}">INFO</span>
+                        </div>
+                        <span style="font-size:0.73rem; color:var(--text-secondary);" th:text="${n.message}">Message body</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Logout -->
+        <a href="/logout" class="btn btn-outline btn-sm" title="Sign Out">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+            <span>Logout</span>
+        </a>
+    </div>
+</header>
+
+<!-- Reusable Sidebar Fragment -->
+<aside th:fragment="appSidebar(activeTab)" class="app-sidebar">
+    <div class="sidebar-header">
+        <div class="brand-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <div class="brand-text">
+            <span class="brand-title">NetSentinel</span>
+            <span class="brand-badge">SOC & Academic Portal</span>
+        </div>
+    </div>
+
+    <!-- Role Indicator -->
+    <div class="sidebar-role-indicator">
+        <span style="font-size:0.75rem; color:var(--text-muted);">Session Context</span>
+        <span th:if="${currentUser != null and currentUser.admin}" class="role-pill role-admin">Administrator</span>
+        <span th:if="${currentUser != null and currentUser.faculty}" class="role-pill role-faculty">Faculty</span>
+        <span th:if="${currentUser != null and currentUser.student}" class="role-pill role-student">Student</span>
+    </div>
+
+    <!-- Navigation links according to user role -->
+    <nav class="sidebar-nav">
+        <!-- ADMIN NAVIGATION -->
+        <th:block th:if="${currentUser != null and currentUser.admin}">
+            <span class="nav-section-title">Operations Center</span>
+            <a href="/admin/dashboard" class="nav-item" th:classappend="${activeTab == 'dashboard' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+                <span>Overview</span>
+            </a>
+            <a href="/admin/incidents" class="nav-item" th:classappend="${activeTab == 'incidents' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" x2="12" y1="9" y2="13"></line><line x1="12" x2="12.01" y1="17" y2="17"></line></svg>
+                <span>Security Incidents</span>
+            </a>
+            <a href="/admin/activity-logs" class="nav-item" th:classappend="${activeTab == 'activity' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                <span>Activity Logs</span>
+            </a>
+            <a href="/admin/simulation" class="nav-item" th:classappend="${activeTab == 'simulation' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span>Simulation Lab</span>
+            </a>
+            <a href="/admin/insight" class="nav-item" th:classappend="${activeTab == 'insight' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg>
+                <span>Sentinel Insight</span>
+            </a>
+            <a href="/admin/rules" class="nav-item" th:classappend="${activeTab == 'rules' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <span>Detection Rules</span>
+            </a>
+
+            <span class="nav-section-title">Administration</span>
+            <a href="/admin/users" class="nav-item" th:classappend="${activeTab == 'users' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>User Management</span>
+            </a>
+            <a href="/admin/academics" class="nav-item" th:classappend="${activeTab == 'academics' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10"></path><path d="M6 10h10"></path></svg>
+                <span>Academic Management</span>
+            </a>
+            <a href="/admin/analytics" class="nav-item" th:classappend="${activeTab == 'analytics' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+                <span>Reports & Analytics</span>
+            </a>
+            <a href="/admin/settings" class="nav-item" th:classappend="${activeTab == 'settings' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <span>Settings</span>
+            </a>
+        </th:block>
+
+        <!-- FACULTY NAVIGATION -->
+        <th:block th:if="${currentUser != null and currentUser.faculty}">
+            <span class="nav-section-title">Faculty Portal</span>
+            <a href="/faculty/dashboard" class="nav-item" th:classappend="${activeTab == 'dashboard' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+                <span>Overview</span>
+            </a>
+            <a href="/faculty/subjects" class="nav-item" th:classappend="${activeTab == 'subjects' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path></svg>
+                <span>My Subjects</span>
+            </a>
+            <a href="/faculty/students" class="nav-item" th:classappend="${activeTab == 'students' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                <span>My Students</span>
+            </a>
+            <a href="/faculty/attendance" class="nav-item" th:classappend="${activeTab == 'attendance' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                <span>Attendance Management</span>
+            </a>
+            <a href="/faculty/marks" class="nav-item" th:classappend="${activeTab == 'marks' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
+                <span>Marks Management</span>
+            </a>
+            <a href="/faculty/activity" class="nav-item" th:classappend="${activeTab == 'activity' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>My Activity</span>
+            </a>
+        </th:block>
+
+        <!-- STUDENT NAVIGATION -->
+        <th:block th:if="${currentUser != null and currentUser.student}">
+            <span class="nav-section-title">Academic Portal</span>
+            <a href="/student/dashboard" class="nav-item" th:classappend="${activeTab == 'dashboard' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+                <span>Overview</span>
+            </a>
+            <a href="/student/attendance" class="nav-item" th:classappend="${activeTab == 'attendance' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                <span>My Attendance</span>
+            </a>
+            <a href="/student/marks" class="nav-item" th:classappend="${activeTab == 'marks' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
+                <span>My Marks</span>
+            </a>
+            <a href="/student/profile" class="nav-item" th:classappend="${activeTab == 'profile' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>My Profile</span>
+            </a>
+            <a href="/student/activity" class="nav-item" th:classappend="${activeTab == 'activity' ? 'active' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>My Activity</span>
+            </a>
+        </th:block>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+        <div class="user-mini-card">
+            <div class="user-avatar-circle" th:text="${currentUser != null ? currentUser.fullName.substring(0, 1) : 'U'}">A</div>
+            <div class="user-info-text">
+                <span class="user-name" th:text="${currentUser != null ? currentUser.fullName : 'Guest'}">User Name</span>
+                <span class="user-role-sub" th:text="${currentUser != null ? currentUser.userCode : 'DEMO-001'}">ADM-001</span>
+            </div>
+        </div>
+        <a href="/logout" title="Sign Out" style="color:var(--text-muted);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+        </a>
+    </div>
+</aside>
+
+<!-- Metric Card Fragment -->
+<div th:fragment="metric(title, value, sub, iconClass, accentClass)" class="metric-card" th:classappend="${accentClass}">
+    <div class="metric-top">
+        <span class="metric-label" th:text="${title}">Metric</span>
+        <div class="metric-icon-box" th:classappend="${iconClass}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </div>
+    </div>
+    <div class="metric-value" th:text="${value}">0</div>
+    <div class="metric-sub" th:text="${sub}">Baseline</div>
+</div>
+
+</body>
+</html>
+

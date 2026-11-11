@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Logs & Audit Trail — NetSentinel SOC</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('activity')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Activity Logs & Audit Trail', 'Immutable Forensics Stream of Academic Portal Transactions')}"></div>
+
+        <main class="app-content">
+            <!-- Filter Bar -->
+            <form th:action="@{/admin/activity-logs}" method="get" class="filter-bar">
+                <div class="search-input-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
+                    <input type="text" name="actor" class="form-control" placeholder="Search by actor username..." th:value="${actor}">
+                </div>
+
+                <select name="role" class="form-control" style="width: auto;">
+                    <option value="" th:selected="${role == null or role.isEmpty()}">All Roles</option>
+                    <option value="ADMIN" th:selected="${role == 'ADMIN'}">ADMIN</option>
+                    <option value="FACULTY" th:selected="${role == 'FACULTY'}">FACULTY</option>
+                    <option value="STUDENT" th:selected="${role == 'STUDENT'}">STUDENT</option>
+                </select>
+
+                <select name="outcome" class="form-control" style="width: auto;">
+                    <option value="" th:selected="${outcome == null or outcome.isEmpty()}">All Outcomes</option>
+                    <option value="SUCCESS" th:selected="${outcome == 'SUCCESS'}">SUCCESS</option>
+                    <option value="BLOCKED" th:selected="${outcome == 'BLOCKED'}">BLOCKED</option>
+                    <option value="DENIED" th:selected="${outcome == 'DENIED'}">DENIED</option>
+                    <option value="FLAGGED" th:selected="${outcome == 'FLAGGED'}">FLAGGED</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                <a th:href="@{/admin/activity-logs}" class="btn btn-outline btn-sm">Reset</a>
+            </form>
+
+            <!-- Table Panel -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">System Audit Log Stream</h2>
+                        <span class="panel-subtitle" th:text="${'Showing ' + logs.size() + ' of ' + totalCount + ' recorded transactions'}">Logged actions</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Actor Username</th>
+                                <th>Role</th>
+                                <th>Action Performed</th>
+                                <th>Target Route</th>
+                                <th>Outcome</th>
+                                <th>Origin IP</th>
+                                <th>Operation Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${logs.empty}">
+                                <td colspan="8" style="text-align:center; padding:3rem; color:var(--text-muted);">
+                                    <div class="empty-state">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+                                        <div class="empty-title">No Activity Logs Recorded Yet</div>
+                                        <div class="empty-desc">System activity is tracked in real-time as users log in, record attendance, and interact with the portal.</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:each="l : ${logs}">
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${#temporals.format(l.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-11-07 10:15:33</td>
+                                <td style="font-weight:600;" th:text="${l.actorUsername}">faculty_sarah</td>
+                                <td>
+                                    <span class="badge" th:classappend="${l.actorRole == 'ADMIN' ? 'role-admin' : (l.actorRole == 'FACULTY' ? 'role-faculty' : 'role-student')}" th:text="${l.actorRole}">FACULTY</span>
+                                </td>
+                                <td><span class="code-badge" th:text="${l.action}">MARKS_RECORD</span></td>
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${l.targetResource}">/faculty/marks</td>
+                                <td>
+                                    <span class="badge" th:classappend="${l.outcome == 'SUCCESS' ? 'badge-success' : (l.outcome == 'BLOCKED' ? 'badge-blocked' : 'badge-high')}" th:text="${l.outcome}">SUCCESS</span>
+                                </td>
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${l.ipAddress}">192.168.1.52</td>
+                                <td style="color:var(--text-secondary); font-size:0.8rem;" th:text="${l.details}">Details</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="panel-body" style="padding-top:0;" th:if="${totalPages > 1}">
+                    <div class="pagination">
+                        <a th:if="${currentPage > 1}" th:href="@{/admin/activity-logs(page=${currentPage - 1}, actor=${actor}, role=${role}, outcome=${outcome})}" class="page-btn">Prev</a>
+                        <span th:each="p : ${#numbers.sequence(1, totalPages)}">
+                            <a th:href="@{/admin/activity-logs(page=${p}, actor=${actor}, role=${role}, outcome=${outcome})}" class="page-btn" th:classappend="${p == currentPage ? 'active' : ''}" th:text="${p}">1</a>
+                        </span>
+                        <a th:if="${currentPage < totalPages}" th:href="@{/admin/activity-logs(page=${currentPage + 1}, actor=${actor}, role=${role}, outcome=${outcome})}" class="page-btn">Next</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

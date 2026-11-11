@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Resource Not Found — NetSentinel</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg-primary); padding:1.5rem;">
+
+<div class="panel-card" style="max-width:500px; width:100%; text-align:center; padding:2.5rem;">
+    <div style="width:64px; height:64px; border-radius:50%; background:var(--accent-teal-subtle); color:var(--accent-teal); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+    </div>
+
+    <span class="badge badge-medium" style="margin-bottom:0.75rem;">ROUTE ANOMALY</span>
+    <h1 style="font-size:1.75rem; font-weight:800; color:var(--text-primary); margin-bottom:0.5rem;">404 — Endpoint Not Found</h1>
+    <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1.5rem;">
+        The requested resource path does not exist on the NetSentinel portal architecture.
+    </p>
+
+    <div style="display:flex; justify-content:center; gap:0.75rem;">
+        <a href="/" class="btn btn-primary">Return to Portal</a>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

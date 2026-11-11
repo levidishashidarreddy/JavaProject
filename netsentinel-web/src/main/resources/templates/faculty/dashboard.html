@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Portal Overview — NetSentinel</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('dashboard')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Faculty Academic Console', 'Instructional Management & Continuous Surveillance')}"></div>
+
+        <main class="app-content">
+            <!-- Faculty Metrics -->
+            <div class="metrics-grid">
+                <div class="metric-card accent-info">
+                    <div class="metric-top">
+                        <span class="metric-label">Assigned Courses</span>
+                        <div class="metric-icon-box info">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path></svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" th:text="${assignedSubjects.size()}">2</div>
+                    <div class="metric-sub">Department of Computer Science</div>
+                </div>
+
+                <div class="metric-card accent-success">
+                    <div class="metric-top">
+                        <span class="metric-label">Instructional Security</span>
+                        <div class="metric-icon-box success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" style="color:var(--success-green); font-size:1.4rem;">AUTHORIZED</div>
+                    <div class="metric-sub">Separation-of-Duty Enforced</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span class="metric-label">Rapid Action Tools</span>
+                        <div class="metric-icon-box">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; margin-top:0.35rem;">
+                        <a href="/faculty/attendance" class="btn btn-primary btn-sm">Mark Attendance</a>
+                        <a href="/faculty/marks" class="btn btn-outline btn-sm">Update Marks</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Subjects Panel -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">My Assigned Instructional Courses</h2>
+                        <span class="panel-subtitle">Attendance and gradebook authorizations are restricted strictly to these modules</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Credits</th>
+                                <th>Semester</th>
+                                <th>Academic Year</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="s : ${assignedSubjects}">
+                                <td><span class="code-badge" th:text="${s.subjectCode}">CS301</span></td>
+                                <td style="font-weight:600;" th:text="${s.subjectName}">Data Structures</td>
+                                <td th:text="${s.credits + ' Credits'}">4 Credits</td>
+                                <td th:text="${s.assignedSemester}">Fall 2026</td>
+                                <td th:text="${s.academicYear}">2026-2027</td>
+                                <td>
+                                    <div style="display:flex; gap:0.4rem;">
+                                        <a th:href="@{/faculty/attendance(subjectId=${s.subjectId})}" class="btn btn-outline btn-sm">Attendance</a>
+                                        <a th:href="@{/faculty/marks(subjectId=${s.subjectId})}" class="btn btn-outline btn-sm">Gradebook</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Faculty Activities -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h3 class="panel-title">Recent Session Operations</h3>
+                        <span class="panel-subtitle">Audit logging for instructional actions</span>
+                    </div>
+                    <a href="/faculty/activity" class="btn btn-outline btn-sm">All Activities</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Action</th>
+                                <th>Outcome</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="log : ${recentLogs}">
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-11-07 09:12:15</td>
+                                <td><span class="code-badge" th:text="${log.action}">ATTENDANCE_RECORD</span></td>
+                                <td><span class="badge badge-success" th:text="${log.outcome}">SUCCESS</span></td>
+                                <td style="color:var(--text-secondary); font-size:0.8rem;" th:text="${log.details}">Action summary</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

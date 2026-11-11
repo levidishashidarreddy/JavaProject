@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Rules & What-If Policy Lab — NetSentinel</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('rules')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Heuristic Detection Rules & Policy Calibration', 'Threshold Tuning, Sensitivity Analysis, & What-If Policy Simulation')}"></div>
+
+        <main class="app-content">
+            <!-- What-If Policy Testing Sandbox Panel -->
+            <div class="panel-card" style="border: 2px solid var(--accent-teal); margin-bottom: 1.5rem;">
+                <div class="panel-header" style="background: var(--accent-teal-subtle); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 class="panel-title" style="color:var(--accent-teal);">What-If Policy Simulation Lab (Isolated Testing Mode)</h3>
+                        <span class="panel-subtitle">Simulate threshold calibrations against synthetic activity patterns without altering live database records</span>
+                    </div>
+                    <span class="badge badge-success">ISOLATED SANDBOX</span>
+                </div>
+                <div class="panel-body">
+                    <form th:action="@{/admin/rules/what-if}" method="post" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; align-items:flex-end;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Target Detection Rule</label>
+                            <select name="ruleCode" class="form-control" id="whatIfRuleSelect" required>
+                                <option value="RULE-ATT-001">RULE-ATT-001 (Unauthorized Attendance)</option>
+                                <option value="RULE-MOD-002" selected>RULE-MOD-002 (Bulk Academic Modification)</option>
+                                <option value="RULE-PRV-003">RULE-PRV-003 (Unauthorized Privilege Change)</option>
+                                <option value="RULE-REC-004">RULE-REC-004 (Unauthorized Student Record Access)</option>
+                                <option value="RULE-TIM-005">RULE-TIM-005 (Off-Hours Activity)</option>
+                                <option value="RULE-BRT-006">RULE-BRT-006 (Brute Force Login Surge)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Synthetic Test Pattern</label>
+                            <select name="activityPattern" class="form-control" required>
+                                <option value="BURST_BATCH_GRADING" selected>Burst Batch Grading (7 edits in 20s)</option>
+                                <option value="NORMAL_FACULTY_GRADING">Normal Faculty Grading (1 edit per min)</option>
+                                <option value="STUDENT_ATTENDANCE_ATTEMPT">Student Attendance Alteration Attempt</option>
+                                <option value="UNAUTHORIZED_ROLE_CHANGE">Unprivileged Role Elevation Attempt</option>
+                                <option value="HORIZONTAL_STUDENT_PROBE">Student Horizontal IDOR Probe</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Simulated Threshold</label>
+                            <input type="number" name="threshold" class="form-control" value="5" min="1" max="100" required>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Time Window (Seconds)</label>
+                            <input type="number" name="timeWindowSeconds" class="form-control" value="60" min="5" max="600" required>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Calibrated Severity</label>
+                            <select name="severity" class="form-control">
+                                <option value="CRITICAL">CRITICAL</option>
+                                <option value="HIGH" selected>HIGH</option>
+                                <option value="MEDIUM">MEDIUM</option>
+                                <option value="LOW">LOW</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+                                <span>Simulate Policy</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- What-If Comparison Result Card (Before vs After) -->
+                    <div th:if="${whatIfResult != null}" style="margin-top:1.25rem; padding:1.25rem; background:var(--bg-secondary); border-radius:var(--radius-md); border:1px solid var(--border-color); animation: slide-in 0.4s ease;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+                            <div style="display:flex; align-items:center; gap:0.5rem;">
+                                <span class="code-badge" th:text="${whatIfResult['ruleCode']}">RULE-MOD-002</span>
+                                <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary);" th:text="${whatIfResult['ruleName']}">Rule Name</h4>
+                            </div>
+                            <span class="badge badge-medium">SIMULATION COMPLETE</span>
+                        </div>
+
+                        <!-- Before vs After Comparison Grid -->
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                            <!-- Current Active Baseline -->
+                            <div style="background:var(--bg-card); padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+                                <span class="metric-label">Current Active Baseline Policy</span>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+                                    <span style="font-size:0.85rem; color:var(--text-secondary);">Threshold: <strong th:text="${whatIfResult['currentThreshold']} + ' events'">20</strong> in <strong th:text="${whatIfResult['currentWindowSeconds']} + 's'">120s</strong></span>
+                                    <span class="badge" th:classappend="${whatIfResult['currentTriggered'] ? 'badge-critical' : 'badge-low'}" th:text="${whatIfResult['currentOutcome']}">SAFE</span>
+                                </div>
+                            </div>
+
+                            <!-- Proposed Simulated Policy -->
+                            <div style="background:var(--bg-card); padding:1rem; border-radius:var(--radius-sm); border:2px solid var(--accent-teal);">
+                                <span class="metric-label" style="color:var(--accent-teal);">Proposed Simulated Policy</span>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+                                    <span style="font-size:0.85rem; color:var(--text-secondary);">Threshold: <strong th:text="${whatIfResult['simulatedThreshold']} + ' events'">5</strong> in <strong th:text="${whatIfResult['simulatedWindowSeconds']} + 's'">60s</strong></span>
+                                    <span class="badge" th:classappend="${whatIfResult['simulatedTriggered'] ? 'badge-critical' : 'badge-low'}" th:text="${whatIfResult['simulatedOutcome']}">TRIGGERED</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delta Analysis -->
+                        <div style="margin-top:1rem; padding:0.75rem 1rem; background:var(--bg-primary); border-radius:var(--radius-sm); border-left:3px solid var(--accent-teal);">
+                            <span class="metric-label" style="color:var(--accent-teal);">Before-versus-After Delta Impact</span>
+                            <p style="font-size:0.85rem; color:var(--text-primary); margin-top:0.25rem;" th:text="${whatIfResult['decisionDelta']}">Delta</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Detection Rules Grid -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
+                <div th:each="r : ${rules}" class="panel-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <div class="panel-header">
+                            <div style="display:flex; align-items:center; gap:0.5rem;">
+                                <span class="code-badge" th:text="${r.ruleCode}">RULE-ATT-001</span>
+                                <h3 class="panel-title" style="font-size:0.95rem;" th:text="${r.ruleName}">Rule Title</h3>
+                            </div>
+                            <span class="badge" th:classappend="${r.severity == 'CRITICAL' ? 'badge-critical' : (r.severity == 'HIGH' ? 'badge-high' : 'badge-medium')}" th:text="${r.severity}">HIGH</span>
+                        </div>
+                        <div class="panel-body">
+                            <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.5; min-height:48px;" th:text="${r.description}">
+                                Description of rule
+                            </p>
+
+                            <!-- Calibration Form -->
+                            <form th:action="@{/admin/rules/update}" method="post" style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-light); display:flex; flex-direction:column; gap:0.75rem;">
+                                <input type="hidden" name="ruleCode" th:value="${r.ruleCode}">
+
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label class="form-label">Threshold (Events)</label>
+                                        <input type="number" name="threshold" class="form-control" th:value="${r.threshold}" min="1" max="100" required>
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label class="form-label">Window (Seconds)</label>
+                                        <input type="number" name="timeWindowSeconds" class="form-control" th:value="${r.timeWindowSeconds}" min="5" max="3600" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label class="form-label">Severity Escalation</label>
+                                    <select name="severity" class="form-control">
+                                        <option value="CRITICAL" th:selected="${r.severity == 'CRITICAL'}">CRITICAL</option>
+                                        <option value="HIGH" th:selected="${r.severity == 'HIGH'}">HIGH</option>
+                                        <option value="MEDIUM" th:selected="${r.severity == 'MEDIUM'}">MEDIUM</option>
+                                        <option value="LOW" th:selected="${r.severity == 'LOW'}">LOW</option>
+                                    </select>
+                                </div>
+
+                                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:0.5rem;">
+                                    <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.8rem; cursor:pointer;">
+                                        <input type="checkbox" name="enabled" value="true" th:checked="${r.enabled}">
+                                        <span>Rule Active</span>
+                                    </label>
+                                    <button type="submit" class="btn btn-primary btn-sm">Save Parameters</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

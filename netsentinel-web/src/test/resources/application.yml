@@ -1,0 +1,22 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: netsentinel-test
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:target/test-netsentinel.db
+  thymeleaf:
+    cache: false
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      continue-on-error: true
+
+logging:
+  level:
+    root: INFO
+    com.netsentinel: DEBUG
+

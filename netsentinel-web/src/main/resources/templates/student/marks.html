@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Marks & Grades — NetSentinel Student Portal</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('marks')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('My Examination Marks', 'Tamper-Evident Academic Grade Ledger')}"></div>
+
+        <main class="app-content">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Certified Assessment & Examination Scores</h2>
+                        <span class="panel-subtitle">Official gradebook entries secured by NetSentinel Integrity Guardian</span>
+                    </div>
+                    <span class="badge badge-success">DIGITALLY SIGNED</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Course Title</th>
+                                <th>Evaluation Type</th>
+                                <th>Recorded Score</th>
+                                <th>Max Score</th>
+                                <th>Percentage</th>
+                                <th>Evaluating Faculty</th>
+                                <th>Recorded Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${marksList == null or marksList.empty}">
+                                <td colspan="8" style="text-align:center; padding:3rem; color:var(--text-muted);">
+                                    <div class="empty-state">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
+                                        <div class="empty-title">No Academic Marks Recorded Yet</div>
+                                        <div class="empty-desc">Your midterm, lab, and quiz grades will appear here once officially submitted by course instructors.</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:each="m : ${marksList}">
+                                <td><span class="code-badge" th:text="${m.subjectCode}">CS301</span></td>
+                                <td style="font-weight:600;" th:text="${m.subjectName}">Data Structures</td>
+                                <td><span class="badge badge-medium" th:text="${m.examType}">MIDTERM</span></td>
+                                <td style="font-weight:700; color:var(--text-primary);" th:text="${m.score}">88.5</td>
+                                <td th:text="${m.maxScore}">100.0</td>
+                                <td>
+                                    <span class="badge badge-success" th:text="${#numbers.formatDecimal(m.percentage, 1, 1) + '%'}">88.5%</span>
+                                </td>
+                                <td th:text="${m.facultyName}">Prof. Alan Turing</td>
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${#temporals.format(m.recordedAt, 'yyyy-MM-dd HH:mm')}">2026-10-18 14:00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

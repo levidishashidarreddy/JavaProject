@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel Insight™ Intelligence — NetSentinel</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+    <style>
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.25rem;
+        }
+        .dimension-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+        .dimension-num {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--accent-teal);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .dimension-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .dimension-body {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('insight')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Sentinel Insight™ Intelligence', 'Explainable Threat Diagnostics & Behavioral Heuristics Matrix')}"></div>
+
+        <main class="app-content">
+            <!-- Strategic Intelligence Architecture Overview -->
+            <div class="panel-card" style="border-left: 4px solid var(--accent-teal);">
+                <div class="panel-header" style="background:var(--accent-teal-subtle); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h2 class="panel-title" style="color:var(--accent-teal);">Explainable Security Intelligence Engine</h2>
+                        <span class="panel-subtitle">Transparent, deterministic root-cause diagnosis across 8 structured intelligence dimensions</span>
+                    </div>
+                    <span class="badge badge-success">XAI DETERMINISTIC KERNEL</span>
+                </div>
+                <div class="panel-body" style="line-height:1.6; font-size:0.88rem; color:var(--text-secondary);">
+                    NetSentinel replaces black-box alerts with <strong>Sentinel Insight™</strong> explainability blueprints. Every incident generated across academic portal routes is analyzed using verified factual event records, separating observed facts from interpretations without requiring external AI APIs.
+                </div>
+            </div>
+
+            <!-- Active Incident 8-Dimension Intelligence Dossier -->
+            <div th:if="${dossier != null}" class="panel-card" style="border: 2px solid var(--accent-teal);">
+                <div class="panel-header" style="background:var(--bg-primary); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                    <div style="display:flex; align-items:center; gap:0.75rem;">
+                        <span class="code-badge" style="font-size:0.9rem;" th:text="${dossier.incidentNumber}">INC-2026-0091</span>
+                        <h3 class="panel-title" th:text="${dossier.title}">Incident Title</h3>
+                        <span class="badge" th:classappend="${dossier.severity == 'CRITICAL' ? 'badge-critical' : 'badge-high'}" th:text="${dossier.severity}">HIGH</span>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <span style="font-size:0.75rem; color:var(--text-muted);" th:text="${'Recorded: ' + dossier.timestamp}">2026-11-07 10:00</span>
+                        <a th:href="@{/admin/incidents}" class="btn btn-outline btn-sm">All Incidents</a>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <!-- The 8 Core Explainability Dimensions Grid -->
+                    <div class="dimension-grid">
+                        <!-- 1. What Happened -->
+                        <div class="dimension-card" style="border-left: 3px solid var(--accent-teal);">
+                            <span class="dimension-num">Dimension 1</span>
+                            <h4 class="dimension-title">1. What Happened?</h4>
+                            <p class="dimension-body" th:text="${dossier.whatHappened}">Factual description</p>
+                        </div>
+
+                        <!-- 2. Who Performed Action -->
+                        <div class="dimension-card" style="border-left: 3px solid var(--accent-teal);">
+                            <span class="dimension-num">Dimension 2</span>
+                            <h4 class="dimension-title">2. Who Performed the Action?</h4>
+                            <p class="dimension-body" th:text="${dossier.whoPerformedAction}">Actor details</p>
+                        </div>
+
+                        <!-- 3. Resource Targeted -->
+                        <div class="dimension-card" style="border-left: 3px solid var(--accent-teal);">
+                            <span class="dimension-num">Dimension 3</span>
+                            <h4 class="dimension-title">3. Which Resource was Targeted?</h4>
+                            <p class="dimension-body" th:text="${dossier.resourceTargeted}">Target resource details</p>
+                        </div>
+
+                        <!-- 4. Why Flagged -->
+                        <div class="dimension-card" style="border-left: 3px solid var(--warning-amber);">
+                            <span class="dimension-num">Dimension 4</span>
+                            <h4 class="dimension-title">4. Why was the Event Flagged?</h4>
+                            <p class="dimension-body" th:text="${dossier.whyFlagged}">Detection justification</p>
+                        </div>
+
+                        <!-- 5. Rule Triggered -->
+                        <div class="dimension-card" style="border-left: 3px solid var(--accent-teal);">
+                            <span class="dimension-num">Dimension 5</span>
+                            <h4 class="dimension-title">5. Which Rule was Triggered?</h4>
+                            <p class="dimension-body" th:text="${dossier.ruleTriggeredDetails}">Rule details</p>
+                        </div>
+
+                        <!-- 6. Supporting Evidence -->
+                        <div class="dimension-card" style="border-left: 3px solid var(--accent-teal);">
+                            <span class="dimension-num">Dimension 6</span>
+                            <h4 class="dimension-title">6. What Evidence Supports the Finding?</h4>
+                            <div style="font-family:var(--font-mono); font-size:0.75rem; background:var(--bg-input); padding:0.5rem; border-radius:var(--radius-sm); color:var(--accent-teal); overflow-x:auto;">
+                                <div th:each="entry : ${dossier.evidenceDetails}">
+                                    <strong th:text="${entry.key} + ': '">key: </strong>
+                                    <span th:text="${entry.value}">value</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. Potential Impact -->
+                        <div class="dimension-card" style="border-left: 3px solid var(--danger-red);">
+                            <span class="dimension-num">Dimension 7</span>
+                            <h4 class="dimension-title">7. What is the Potential Impact?</h4>
+                            <p class="dimension-body" th:text="${dossier.potentialImpact}">Potential impact details</p>
+                        </div>
+
+                        <!-- 8. Recommended Next Steps -->
+                        <div class="dimension-card" style="border-left: 3px solid var(--accent-teal);">
+                            <span class="dimension-num">Dimension 8</span>
+                            <h4 class="dimension-title">8. What Should Admin Investigate Next?</h4>
+                            <ul style="margin:0; padding-left:1.1rem; font-size:0.83rem; color:var(--text-secondary); line-height:1.5;">
+                                <li th:each="step : ${dossier.recommendedNextSteps}" th:text="${step}">Step</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Related Audit Logs for Context -->
+                    <div style="margin-top:1.5rem; border-top:1px solid var(--border-color); padding-top:1rem;">
+                        <h4 style="font-size:0.9rem; font-weight:700; color:var(--text-primary); margin-bottom:0.75rem;">Related Activity Audit Trail for Actor</h4>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Action</th>
+                                        <th>Outcome</th>
+                                        <th>Target Resource</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${dossier.relatedActivityLogs == null or dossier.relatedActivityLogs.empty}">
+                                        <td colspan="5" style="text-align:center; color:var(--text-muted);">No contiguous activity logs found.</td>
+                                    </tr>
+                                    <tr th:each="l : ${dossier.relatedActivityLogs}">
+                                        <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${l.time}">time</td>
+                                        <td style="font-weight:600;" th:text="${l.action}">action</td>
+                                        <td>
+                                            <span class="badge" th:classappend="${l.outcome == 'SUCCESS' or l.outcome == 'ALLOWED' ? 'badge-low' : 'badge-critical'}" th:text="${l.outcome}">SUCCESS</span>
+                                        </td>
+                                        <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${l.resource}">resource</td>
+                                        <td style="color:var(--text-secondary); font-size:0.8rem;" th:text="${l.details}">details</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MITRE ATT&CK Academic Mapping Grid -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h3 class="panel-title">MITRE ATT&CK Matrix for Academic Portals</h3>
+                        <span class="panel-subtitle">Standardized taxonomy of university portal threats and attack techniques</span>
+                    </div>
+                </div>
+                <div class="panel-body" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem;">
+                    <div style="background:var(--bg-primary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="code-badge">T1078.004</span>
+                            <span class="badge badge-critical">CREDENTIAL ABUSE</span>
+                        </div>
+                        <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary); margin-top:0.5rem;">Valid Account Compromise</h4>
+                        <p style="font-size:0.78rem; color:var(--text-secondary); margin-top:0.25rem;">Legitimate faculty or student credentials used from anomalous IP addresses or unexpected velocity bursts.</p>
+                    </div>
+
+                    <div style="background:var(--bg-primary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="code-badge">T1565.001</span>
+                            <span class="badge badge-critical">INTEGRITY HAZARD</span>
+                        </div>
+                        <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary); margin-top:0.5rem;">Stored Data Manipulation</h4>
+                        <p style="font-size:0.78rem; color:var(--text-secondary); margin-top:0.25rem;">Unauthorized grade alterations or attendance state tampering attempting to manipulate GPA or academic transcripts.</p>
+                    </div>
+
+                    <div style="background:var(--bg-primary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="code-badge">T1068</span>
+                            <span class="badge badge-high">ELEVATION</span>
+                        </div>
+                        <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary); margin-top:0.5rem;">Privilege Escalation Probe</h4>
+                        <p style="font-size:0.78rem; color:var(--text-secondary); margin-top:0.25rem;">Student accounts probing administrative endpoints or altering role parameters to attain faculty or SOC admin privileges.</p>
+                    </div>
+
+                    <div style="background:var(--bg-primary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="code-badge">T1114</span>
+                            <span class="badge badge-medium">CONFIDENTIALITY</span>
+                        </div>
+                        <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary); margin-top:0.5rem;">Data Scraping & Harvesting</h4>
+                        <p style="font-size:0.78rem; color:var(--text-secondary); margin-top:0.25rem;">Automated scripts traversing student IDs sequentially to extract private rosters or grade distributions.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

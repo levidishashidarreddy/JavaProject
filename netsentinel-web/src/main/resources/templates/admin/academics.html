@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Management — NetSentinel Administration</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('academics')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Academic Course & Roster Governance', 'Curriculum Master, Instructional Assignments, & Student Registrations')}"></div>
+
+        <main class="app-content">
+            <!-- Metrics Row -->
+            <div class="metrics-grid">
+                <div class="metric-card accent-info">
+                    <div class="metric-top"><span class="metric-label">Active Courses</span></div>
+                    <div class="metric-value" th:text="${subjects.size()}">4</div>
+                    <div class="metric-sub">Accredited Curricula</div>
+                </div>
+
+                <div class="metric-card accent-success">
+                    <div class="metric-top"><span class="metric-label">Faculty Assignments</span></div>
+                    <div class="metric-value" th:text="${facultyAssignments.size()}">4</div>
+                    <div class="metric-sub">Authorized Instruction Slots</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top"><span class="metric-label">Total Enrollments</span></div>
+                    <div class="metric-value" th:text="${enrollments.size()}">4</div>
+                    <div class="metric-sub">Active Student Registrations</div>
+                </div>
+
+                <div class="metric-card accent-warning">
+                    <div class="metric-top"><span class="metric-label">Logged Attendance</span></div>
+                    <div class="metric-value" th:text="${totalAttendanceCount}">13</div>
+                    <div class="metric-sub">Session Entries in DB</div>
+                </div>
+            </div>
+
+            <!-- Add Subject Form -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Add New Subject Curriculum</h2>
+                        <span class="panel-subtitle">Create master course entities</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <form th:action="@{/admin/academics/subjects/add}" method="post" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; align-items:end;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Subject Code</label>
+                            <input type="text" name="code" class="form-control" placeholder="e.g. CS410" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Subject Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Cloud Security Architecture" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Department</label>
+                            <input type="text" name="department" class="form-control" value="Computer Science & Engineering" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Credits</label>
+                            <input type="number" name="credits" class="form-control" value="4" min="1" max="6" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Semester</label>
+                            <input type="number" name="semester" class="form-control" value="5" min="1" max="8" required>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+                                <span>Create Subject</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Two-Column Form Row: Assign Faculty & Enroll Student -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem;">
+                <!-- Assign Faculty Card -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Assign Faculty to Course</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form th:action="@{/admin/academics/assign-faculty}" method="post" style="display:flex; flex-direction:column; gap:0.75rem;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Select Faculty</label>
+                                <select name="facultyId" class="form-control" required>
+                                    <option th:each="f : ${facultyList}" th:value="${f.id}" th:text="${f.fullName + ' (' + f.username + ')'}">Prof. Alan Turing</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Target Course</label>
+                                <select name="subjectId" class="form-control" required>
+                                    <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.code + ' - ' + s.name}">CS301</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm" style="margin-top:0.5rem;">Grant Course Instruction Authority</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Enroll Student Card -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Enroll Student in Course</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form th:action="@{/admin/academics/enroll-student}" method="post" style="display:flex; flex-direction:column; gap:0.75rem;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Select Student</label>
+                                <select name="studentId" class="form-control" required>
+                                    <option th:each="st : ${studentList}" th:value="${st.id}" th:text="${st.fullName + ' (' + st.userCode + ')'}">Rahul Sharma</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Target Course</label>
+                                <select name="subjectId" class="form-control" required>
+                                    <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.code + ' - ' + s.name}">CS301</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm" style="margin-top:0.5rem;">Register Student Course Enrollment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty Assignment Ledger -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h3 class="panel-title">Authorized Faculty Course Assignments</h3>
+                        <span class="panel-subtitle">Rule RULE-ATT-001 checks attendance against this table</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Assigned Faculty</th>
+                                <th>Faculty ID Code</th>
+                                <th>Semester Term</th>
+                                <th>Academic Year</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="fa : ${facultyAssignments}">
+                                <td><span class="code-badge" th:text="${fa.subjectCode}">CS301</span></td>
+                                <td style="font-weight:600;" th:text="${fa.subjectName}">Data Structures</td>
+                                <td th:text="${fa.facultyName}">Prof. Alan Turing</td>
+                                <td><span class="code-badge" th:text="${fa.facultyUserCode}">FAC-2026-101</span></td>
+                                <td th:text="${fa.assignedSemester}">Fall 2026</td>
+                                <td th:text="${fa.academicYear}">2026-2027</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

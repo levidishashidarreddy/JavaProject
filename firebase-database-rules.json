@@ -1,0 +1,114 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "systemSettings": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'"
+    },
+
+    "roles": {
+      ".read": "auth != null",
+      ".write": false
+    },
+
+    "users": {
+      "$username": {
+        ".read": "auth != null && (auth.token.username === $username || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN' || root.child('users').child(auth.token.username).child('role').val() === 'FACULTY')",
+        ".write": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'",
+        ".validate": "newData.hasChildren(['username', 'role', 'status']) && (!data.exists() || data.child('role').val() === newData.child('role').val() || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN')"
+      }
+    },
+
+    "studentProfiles": {
+      "$username": {
+        ".read": "auth != null && (auth.token.username === $username || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN' || root.child('users').child(auth.token.username).child('role').val() === 'FACULTY')",
+        ".write": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'"
+      }
+    },
+
+    "facultyProfiles": {
+      "$username": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'"
+      }
+    },
+
+    "attendance": {
+      ".read": "auth != null && (root.child('users').child(auth.token.username).child('role').val() === 'ADMIN' || root.child('users').child(auth.token.username).child('role').val() === 'FACULTY')",
+      "$recordId": {
+        ".read": "auth != null && (data.child('studentUsername').val() === auth.token.username || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN' || root.child('users').child(auth.token.username).child('role').val() === 'FACULTY')",
+        ".write": "auth != null && (root.child('users').child(auth.token.username).child('role').val() === 'ADMIN' || (root.child('users').child(auth.token.username).child('role').val() === 'FACULTY' && (!data.exists() || data.child('facultyUsername').val() === auth.token.username)))",
+        ".validate": "newData.hasChildren(['studentId', 'subjectId', 'status', 'date']) && newData.child('status').val().matches(/^(PRESENT|ABSENT|LATE|EXCUSED)$/)"
+      }
+    },
+
+    "marks": {
+      ".read": "auth != null && (root.child('users').child(auth.token.username).child('role').val() === 'ADMIN' || root.child('users').child(auth.token.username).child('role').val() === 'FACULTY')",
+      "$recordId": {
+        ".read": "auth != null && (data.child('studentUsername').val() === auth.token.username || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN' || root.child('users').child(auth.token.username).child('role').val() === 'FACULTY')",
+        ".write": "auth != null && (root.child('users').child(auth.token.username).child('role').val() === 'ADMIN' || (root.child('users').child(auth.token.username).child('role').val() === 'FACULTY' && (!data.exists() || data.child('facultyUsername').val() === auth.token.username)))",
+        ".validate": "newData.hasChildren(['studentId', 'subjectId', 'examType', 'score', 'maxScore']) && newData.child('score').isNumber() && newData.child('maxScore').isNumber() && newData.child('score').val() <= newData.child('maxScore').val()"
+      }
+    },
+
+    "academicRecords": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'"
+    },
+
+    "activityLogs": {
+      ".read": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'",
+      "$logId": {
+        ".read": "auth != null && (data.child('actorUsername').val() === auth.token.username || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN')",
+        ".write": "auth != null && auth.token.firebaseAdmin === true",
+        ".validate": "newData.hasChildren(['actorUsername', 'action', 'outcome', 'timestamp'])"
+      }
+    },
+
+    "securityEvents": {
+      ".read": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'",
+      ".write": "auth != null && auth.token.firebaseAdmin === true"
+    },
+
+    "incidents": {
+      ".read": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'",
+      "$incidentNumber": {
+        ".write": "auth != null && (auth.token.firebaseAdmin === true || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN')",
+        ".validate": "newData.hasChildren(['incidentNumber', 'title', 'severity', 'status']) && newData.child('status').val().matches(/^(OPEN|INVESTIGATING|UNDER_INVESTIGATION|RESOLVED|FALSE_POSITIVE)$/)"
+      }
+    },
+
+    "incidentTimeline": {
+      ".read": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'",
+      ".write": "auth != null && (auth.token.firebaseAdmin === true || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN')"
+    },
+
+    "detectionRules": {
+      ".read": "auth != null",
+      "$ruleCode": {
+        ".write": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'",
+        ".validate": "newData.hasChildren(['ruleCode', 'enabled', 'threshold', 'timeWindowSeconds', 'severity'])"
+      }
+    },
+
+    "simulations": {
+      ".read": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'",
+      ".write": "auth != null && (auth.token.firebaseAdmin === true || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN')"
+    },
+
+    "notifications": {
+      "$notifId": {
+        ".read": "auth != null && (data.child('userId').val() === auth.token.userId || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN')",
+        ".write": "auth != null && (auth.token.firebaseAdmin === true || root.child('users').child(auth.token.username).child('role').val() === 'ADMIN')"
+      }
+    },
+
+    "auditLogs": {
+      ".read": "auth != null && root.child('users').child(auth.token.username).child('role').val() === 'ADMIN'",
+      ".write": "auth != null && auth.token.firebaseAdmin === true"
+    }
+  }
+}
+

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — NetSentinel Security & Academic Portal</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2318181B%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+    <style>
+        .login-layout {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-secondary);
+            padding: 2rem 1rem;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2.25rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-primary);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+
+        .login-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .login-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            background: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .login-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+        }
+
+        .login-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            max-width: 340px;
+        }
+
+        .demo-roles-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .demo-roles-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.45rem;
+        }
+
+        .btn-quick-login {
+            padding: 0.5rem 0.65rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            transition: var(--transition);
+        }
+
+        .btn-quick-login:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-quick-login span.desc {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .input-with-button {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-with-button input {
+            padding-right: 2.75rem;
+        }
+
+        .input-with-button .password-toggle-btn {
+            position: absolute;
+            right: 0.65rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .input-with-button .password-toggle-btn:hover {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-layout">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <h1 class="login-title">NetSentinel</h1>
+            <p class="login-subtitle">Intelligent Academic Portal & Real-Time Anomaly Surveillance System</p>
+        </div>
+
+        <!-- Feedback Alert Messages -->
+        <div th:if="${errorMessage != null}" class="toast error" style="position: static; margin-bottom: 0;">
+            <span th:text="${errorMessage}">Invalid credentials</span>
+        </div>
+        <div th:if="${warningMessage != null}" class="toast warning" style="position: static; margin-bottom: 0;">
+            <span th:text="${warningMessage}">Session required</span>
+        </div>
+        <div th:if="${successMessage != null}" class="toast success" style="position: static; margin-bottom: 0;">
+            <span th:text="${successMessage}">Logged out</span>
+        </div>
+
+        <!-- Authentic Login Form -->
+        <form id="loginForm" th:action="@{/auth/login}" method="post">
+            <div class="form-group">
+                <label for="usernameInput" class="form-label">Username or Academic ID</label>
+                <input type="text" id="usernameInput" name="username" class="form-control" placeholder="e.g. admin01, faculty101, student101" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label for="passwordInput" class="form-label">Password</label>
+                    <span style="font-size:0.72rem; color:var(--text-muted);">BCrypt Verification</span>
+                </div>
+                <div class="input-with-button">
+                    <input type="password" id="passwordInput" name="password" class="form-control" placeholder="••••••••••••" required>
+                    <button type="button" class="password-toggle-btn" data-target="passwordInput" title="Toggle Password Visibility">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" x2="3" y1="12" y2="12"></line></svg>
+                <span>Authenticate Session</span>
+            </button>
+        </form>
+
+        <!-- Quick Demo Profiles Section -->
+        <div class="demo-roles-container">
+            <div class="demo-roles-title">
+                <span>Verified Demo Accounts</span>
+                <span class="badge badge-medium" style="font-size:0.65rem;">ONE-CLICK LOGIN</span>
+            </div>
+            <div class="demo-grid">
+                <button type="button" class="btn-quick-login" data-role="student101">
+                    <span>student101</span>
+                    <span class="desc">Rahul Sharma (CS Student)</span>
+                </button>
+                <button type="button" class="btn-quick-login" data-role="student102">
+                    <span>student102</span>
+                    <span class="desc">Priya Patel (CS Student)</span>
+                </button>
+                <button type="button" class="btn-quick-login" data-role="faculty101">
+                    <span>faculty101</span>
+                    <span class="desc">Prof. Alan Turing (CS301/CS402)</span>
+                </button>
+                <button type="button" class="btn-quick-login" data-role="faculty102">
+                    <span>faculty102</span>
+                    <span class="desc">Dr. Sarah Jenkins (CS305/CS405)</span>
+                </button>
+                <button type="button" class="btn-quick-login" data-role="admin01" style="grid-column: span 2;">
+                    <span>admin01</span>
+                    <span class="desc">Chief Dave Miller (SOC Administrator)</span>
+                </button>
+            </div>
+        </div>
+
+        <div style="text-align: center; font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">
+            NetSentinel Platform • Java 21 • Spring Boot 3.3.4 • SQLite WAL<br>
+            Strict Role-Based Access Control Active
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

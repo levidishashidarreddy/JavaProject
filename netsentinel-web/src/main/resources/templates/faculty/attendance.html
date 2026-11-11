@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management — NetSentinel Faculty</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('attendance')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Attendance Management', 'Instructional Roster Verification & Biometric Sync')}"></div>
+
+        <main class="app-content">
+            <!-- Course Filter -->
+            <div class="filter-bar">
+                <span style="font-weight:600; font-size:0.8rem;">Select Course Module:</span>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <a th:each="s : ${assignedSubjects}"
+                       th:href="@{/faculty/attendance(subjectId=${s.subjectId})}"
+                       class="btn btn-sm"
+                       th:classappend="${selectedSubjectId == s.subjectId ? 'btn-primary' : 'btn-outline'}"
+                       th:text="${s.subjectCode + ' - ' + s.subjectName}">
+                        CS301
+                    </a>
+                </div>
+            </div>
+
+            <!-- Record Attendance Form Card -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Record Class Attendance</h2>
+                        <span class="panel-subtitle">Authenticated submission verified against faculty instructional assignments</span>
+                    </div>
+                    <span class="badge badge-success">RULE-ATT-001 ACTIVE</span>
+                </div>
+                <div class="panel-body">
+                    <form th:action="@{/faculty/attendance/record}" method="post" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; align-items:end;">
+                        <input type="hidden" name="subjectId" th:value="${selectedSubjectId}">
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Student</label>
+                            <select name="studentId" class="form-control" required>
+                                <option value="" disabled selected>Select enrolled student</option>
+                                <option th:each="st : ${enrolledStudents}" th:value="${st.studentId}" th:text="${st.studentName + ' (' + st.studentUserCode + ')'}">Rahul Sharma</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Attendance Status</label>
+                            <select name="status" class="form-control" required>
+                                <option value="PRESENT" selected>PRESENT</option>
+                                <option value="LATE">LATE</option>
+                                <option value="ABSENT">ABSENT</option>
+                                <option value="EXCUSED">EXCUSED</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Date</label>
+                            <input type="date" name="date" class="form-control" th:value="${#calendars.format(#calendars.createNow(), 'yyyy-MM-dd')}">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Lecture Remarks</label>
+                            <input type="text" name="remarks" class="form-control" placeholder="e.g. Regular theory lecture">
+                        </div>
+
+                        <div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Submit Attendance</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Enrolled Students Quick View -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h3 class="panel-title">Active Enrolled Roster</h3>
+                        <span class="panel-subtitle">Students eligible for attendance entry in this session</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Subject Code</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${enrolledStudents == null or enrolledStudents.empty}">
+                                <td colspan="4" style="text-align:center; color:var(--text-muted); padding:2rem;">No students enrolled.</td>
+                            </tr>
+                            <tr th:each="st : ${enrolledStudents}">
+                                <td><span class="code-badge" th:text="${st.studentUserCode}">STU-2026-042</span></td>
+                                <td style="font-weight:600;" th:text="${st.studentName}">Rahul Sharma</td>
+                                <td><span class="code-badge" th:text="${st.subjectCode}">CS301</span></td>
+                                <td><span class="badge badge-success" th:text="${st.enrollmentStatus}">ENROLLED</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

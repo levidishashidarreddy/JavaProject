@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Student Profile — NetSentinel</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('profile')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Student Identity & Profile', 'Authenticated Campus Security Persona')}"></div>
+
+        <main class="app-content">
+            <div style="max-width: 800px; display:flex; flex-direction:column; gap:1.5rem;">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Academic Identity Details</h2>
+                        <span class="role-pill role-student">Verified Student</span>
+                    </div>
+                    <div class="panel-body" style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem;">
+                        <div>
+                            <span class="metric-label">Full Name</span>
+                            <div style="font-size:1.1rem; font-weight:700; margin-top:0.25rem;" th:text="${user.fullName}">Rahul Sharma</div>
+                        </div>
+                        <div>
+                            <span class="metric-label">Student ID</span>
+                            <div style="margin-top:0.25rem;"><span class="code-badge" style="font-size:0.9rem;" th:text="${user.userCode}">STU-2026-042</span></div>
+                        </div>
+                        <div>
+                            <span class="metric-label">Username</span>
+                            <div style="font-size:0.95rem; font-weight:600; margin-top:0.25rem;" th:text="${user.username}">student</div>
+                        </div>
+                        <div>
+                            <span class="metric-label">University Email</span>
+                            <div style="font-size:0.95rem; color:var(--accent-teal); margin-top:0.25rem;" th:text="${user.email}">rahul.sharma@campus.netsentinel.edu</div>
+                        </div>
+                        <div>
+                            <span class="metric-label">Department</span>
+                            <div style="font-size:0.95rem; margin-top:0.25rem;" th:text="${user.department}">Computer Science & Engineering</div>
+                        </div>
+                        <div>
+                            <span class="metric-label">Current Academic Standing</span>
+                            <div style="margin-top:0.25rem;"><span class="badge badge-success">GOOD STANDING / ACTIVE</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Session Security & Access Controls</h3>
+                    </div>
+                    <div class="panel-body" style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">
+                        <p>Your session identity is subject to real-time academic privilege enforcement. Student sessions have read-only access to their respective enrollments, attendance ledgers, and graded transcripts.</p>
+                        <p style="margin-top:0.5rem; color:var(--text-muted); font-size:0.78rem;">Any unauthorized attempts to invoke faculty routes (such as attendance marking or grade alterations) are blocked at the perimeter and logged to the NetSentinel Security Operations Center.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

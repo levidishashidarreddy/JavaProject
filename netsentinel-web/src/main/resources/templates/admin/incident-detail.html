@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${'Incident ' + incident.incidentNumber + ' — NetSentinel Investigation'}">Incident Investigation</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('incidents')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Incident Investigation Dossier', ${'Dossier Ref: ' + incident.incidentNumber + ' • Rule: ' + incident.ruleCode})}"></div>
+
+        <main class="app-content">
+            <!-- Top Action Header & Quick Status -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                    <a href="/admin/incidents" class="btn btn-outline btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        <span>Back to Incidents</span>
+                    </a>
+                    <a th:href="@{'/admin/insight?incidentId=' + ${incident.id}}" class="btn btn-primary btn-sm" style="background:var(--accent-teal); border-color:var(--accent-teal);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                        <span>Sentinel Insight™ 8-Point Analysis</span>
+                    </a>
+                    <span class="code-badge" style="font-size:0.95rem;" th:text="${incident.incidentNumber}">INC-2026-0091</span>
+                    <span class="badge" th:classappend="${incident.severity == 'CRITICAL' ? 'badge-critical' : (incident.severity == 'HIGH' ? 'badge-high' : 'badge-medium')}" th:text="${incident.severity}">HIGH</span>
+                    <span class="badge" th:classappend="${incident.status == 'OPEN' ? 'badge-high' : (incident.status == 'UNDER_INVESTIGATION' ? 'badge-medium' : 'badge-success')}" th:text="${incident.status}">OPEN</span>
+                </div>
+                <div>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">Assigned Analyst: </span>
+                    <strong style="color:var(--text-primary);" th:text="${incident.assignedTo != null ? incident.assignedTo : 'admin01'}">admin01</strong>
+                </div>
+            </div>
+
+            <!-- Two-Column Primary Dossier Grid -->
+            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.25rem;">
+                <!-- Left Column: Core Dossier, Sentinel Insight, Evidence, Timeline -->
+                <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                    <!-- Overview Summary Card -->
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <div>
+                                <h2 class="panel-title" th:text="${incident.title}">Incident Title</h2>
+                                <span class="panel-subtitle" th:text="${'Category: ' + incident.category + ' • Confidence Score: ' + incident.confidenceScore + '%'}">Summary</span>
+                            </div>
+                            <span class="code-badge" th:text="${incident.ruleCode}">RULE-ATT-001</span>
+                        </div>
+                        <div class="panel-body" style="display:flex; flex-direction:column; gap:1rem;">
+                            <div>
+                                <span class="metric-label">Reason for Detection</span>
+                                <p style="margin-top:0.35rem; font-size:0.9rem; color:var(--text-primary); line-height:1.5;" th:text="${incident.reason}">
+                                    Detection rationale
+                                </p>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; padding-top:0.75rem; border-top:1px solid var(--border-light);">
+                                <div>
+                                    <span class="metric-label">Subject Actor Profile</span>
+                                    <div style="margin-top:0.25rem; font-weight:600; color:var(--text-primary);" th:text="${incident.actorUsername}">student</div>
+                                    <span class="badge badge-low" style="margin-top:0.25rem;" th:text="${'Role: ' + incident.actorRole}">Role: STUDENT</span>
+                                </div>
+                                <div>
+                                    <span class="metric-label">Intercepted Target Resource</span>
+                                    <div style="margin-top:0.25rem; font-family:var(--font-mono); color:var(--accent-teal);" th:text="${incident.targetResource}">/api/v1/attendance/alter</div>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">Perimeter Boundary Enforced</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sentinel Insight Intelligence Section -->
+                    <div class="panel-card" style="border-left: 4px solid var(--accent-teal);">
+                        <div class="panel-header" style="background:var(--accent-teal-subtle);">
+                            <div style="display:flex; align-items:center; gap:0.5rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-teal)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg>
+                                <div>
+                                    <h3 class="panel-title" style="color:var(--accent-teal);">Sentinel Insight™ Explainable Security Analysis</h3>
+                                    <span class="panel-subtitle">Behavioral heuristics, MITRE ATT&CK correlation, and risk vector diagnosis</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <pre style="white-space:pre-wrap; font-family:inherit; font-size:0.85rem; line-height:1.6; color:var(--text-primary);" th:text="${incident.insightExplanation}">
+                                Sentinel Insight intelligence summary
+                            </pre>
+                        </div>
+                    </div>
+
+                    <!-- Recommended Remediation Actions -->
+                    <div class="panel-card" style="border-left: 4px solid var(--warning-amber);">
+                        <div class="panel-header">
+                            <h3 class="panel-title" style="color:var(--warning-amber);">Recommended Investigation & Mitigation Steps</h3>
+                        </div>
+                        <div class="panel-body">
+                            <pre style="white-space:pre-wrap; font-family:inherit; font-size:0.85rem; line-height:1.6; color:var(--text-secondary);" th:text="${incident.recommendedAction}">
+                                1. Step 1
+                                2. Step 2
+                            </pre>
+                        </div>
+                    </div>
+
+                    <!-- Captured Technical Evidence (JSON) -->
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <div>
+                                <h3 class="panel-title">Forensic Evidence Payload</h3>
+                                <span class="panel-subtitle">Normalized JSON telemetry recorded at interception time</span>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <pre style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; font-family:var(--font-mono); font-size:0.78rem; color:var(--accent-teal); overflow-x:auto;" th:text="${incident.evidenceJson}">
+                                {"target": "resource"}
+                            </pre>
+                        </div>
+                    </div>
+
+                    <!-- Investigation Timeline & Events -->
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <div>
+                                <h3 class="panel-title">Audit & Investigation Timeline</h3>
+                                <span class="panel-subtitle">Chronological sequence of detection and response milestones</span>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="timeline">
+                                <div class="timeline-item" th:each="ev : ${events}">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-header">
+                                        <span class="timeline-type" th:text="${ev.eventType}">ANOMALY_DETECTED</span>
+                                        <span class="timeline-time" th:text="${#temporals.format(ev.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-11-07 09:35:11</span>
+                                    </div>
+                                    <div class="timeline-body">
+                                        <span style="font-weight:600; color:var(--accent-teal);" th:text="${ev.actorUsername != null ? ev.actorUsername + ': ' : ''}">System: </span>
+                                        <span th:text="${ev.notes}">Event notes</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Case Controls & Status Mutation -->
+                <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                    <!-- Status Update Control Card -->
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <h3 class="panel-title">Triage & Status Control</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form th:action="@{'/admin/incidents/' + ${incident.id} + '/status'}" method="post">
+                                <div class="form-group">
+                                    <label class="form-label">Workflow Status</label>
+                                    <select name="status" class="form-control" required>
+                                        <option value="OPEN" th:selected="${incident.status == 'OPEN'}">OPEN (Requires Attention)</option>
+                                        <option value="UNDER_INVESTIGATION" th:selected="${incident.status == 'UNDER_INVESTIGATION'}">UNDER INVESTIGATION</option>
+                                        <option value="RESOLVED" th:selected="${incident.status == 'RESOLVED'}">RESOLVED (Mitigated)</option>
+                                        <option value="FALSE_POSITIVE" th:selected="${incident.status == 'FALSE_POSITIVE'}">FALSE POSITIVE</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Investigation Notes</label>
+                                    <textarea name="notes" rows="4" class="form-control" placeholder="Add forensic findings or interview conclusions..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary" style="width:100%;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    <span>Update Case Status</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Metadata Properties Card -->
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <h3 class="panel-title">Incident Metadata & Review</h3>
+                        </div>
+                        <div class="panel-body" style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.8rem;">
+                            <div>
+                                <span class="metric-label">Incident Number</span>
+                                <div class="code-badge" style="margin-top:0.2rem;" th:text="${incident.incidentNumber}">INC-2026-0091</div>
+                            </div>
+                            <div th:if="${incident.reviewedBy != null}">
+                                <span class="metric-label">Reviewed By Analyst</span>
+                                <div style="color:var(--accent-teal); font-weight:600; margin-top:0.2rem;" th:text="${incident.reviewedBy}">admin01</div>
+                            </div>
+                            <div th:if="${incident.reviewedAt != null}">
+                                <span class="metric-label">Reviewed Timestamp</span>
+                                <div style="color:var(--text-secondary); margin-top:0.2rem;" th:text="${#temporals.format(incident.reviewedAt, 'yyyy-MM-dd HH:mm:ss')}">2026-11-07 10:15:00</div>
+                            </div>
+                            <div th:if="${incident.investigationNotes != null and !incident.investigationNotes.isEmpty()}">
+                                <span class="metric-label">Latest Investigation Notes</span>
+                                <div style="color:var(--text-primary); margin-top:0.2rem; background:var(--bg-primary); padding:0.5rem; border-radius:var(--radius-sm); border:1px solid var(--border-color); font-size:0.75rem;" th:text="${incident.investigationNotes}">Notes</div>
+                            </div>
+                            <div>
+                                <span class="metric-label">First Triggered</span>
+                                <div style="color:var(--text-secondary); margin-top:0.2rem;" th:text="${#temporals.format(incident.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2026-11-07 09:35:11</div>
+                            </div>
+                            <div>
+                                <span class="metric-label">Last Updated</span>
+                                <div style="color:var(--text-secondary); margin-top:0.2rem;" th:text="${#temporals.format(incident.updatedAt, 'yyyy-MM-dd HH:mm:ss')}">2026-11-07 09:35:11</div>
+                            </div>
+                            <div>
+                                <span class="metric-label">Storage Backend</span>
+                                <div style="color:var(--text-secondary); margin-top:0.2rem;">SQLite Local WAL (netsentinel.db)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+

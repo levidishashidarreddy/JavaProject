@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat Simulation Lab — NetSentinel SOC</title>
+    <link rel="stylesheet" th:href="@{/css/netsentinel-theme.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2320A99A%22 stroke-width=%222.5%22><path d=%22M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z%22/></svg>">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <div th:replace="~{layout/fragments :: appSidebar('simulation')}"></div>
+
+    <div class="app-main">
+        <div th:replace="~{layout/fragments :: appHeader('Threat Simulation & Behavioral Sandbox', 'Interactive Scenario Injection & Instant Incident Verification')}"></div>
+
+        <main class="app-content">
+            <!-- Lab Introduction Banner with Reset Demo Control -->
+            <div class="panel-card" style="border-left: 4px solid var(--accent-teal);">
+                <div class="panel-header" style="background:var(--accent-teal-subtle); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h2 class="panel-title" style="color:var(--accent-teal);">Interactive Threat Simulation Testbed</h2>
+                        <span class="panel-subtitle">Inject simulated adversary attack vectors directly into the live Java detection pipeline</span>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <span class="badge badge-success">ZERO CLOUD DEPENDENCY</span>
+                        <form th:action="@{/admin/simulation/reset}" method="post" onsubmit="return confirm('Reset all simulation test incidents and restore clean initial demo state?');">
+                            <button type="submit" class="btn btn-outline btn-sm" style="border-color:var(--accent-teal); color:var(--accent-teal);" title="Reset simulation state to clean initial baseline">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                                <span>Reset Demo State</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="panel-body" style="font-size:0.86rem; color:var(--text-secondary); line-height:1.6;">
+                    Each card below launches a controlled, fictional security event directly against the NetSentinel core engine.
+                    The system executes real business authorization checks, evaluates sliding-window telemetry, persists an incident into SQLite, and generates explainable <strong>Sentinel Insight™</strong> intelligence.
+                </div>
+            </div>
+
+            <!-- Live Simulation Execution Result Area (Dynamic AJAX Target / Fallback rendered) -->
+            <div id="simResultContainer" th:style="${simResult != null ? 'display:block;' : 'display:none;'}" class="panel-card" style="border: 2px solid var(--accent-teal); animation: slide-in 0.4s ease;">
+                <div class="panel-header" style="background:var(--bg-primary);">
+                    <div style="display:flex; align-items:center; gap:0.75rem;">
+                        <span id="resBadge" class="badge" th:classappend="${simResult != null and simResult.detected ? 'badge-critical' : 'badge-low'}" th:text="${simResult != null and simResult.detected ? 'ANOMALY DETECTED' : 'SAFE / NO ALERT'}">ANOMALY DETECTED</span>
+                        <h3 id="resTitle" class="panel-title" th:text="${simResult != null ? simResult.title : 'Simulation Result'}">Simulation Result</h3>
+                    </div>
+                    <div id="resActionGroup" style="display:flex; align-items:center; gap:0.5rem;">
+                        <span id="resIncNum" class="code-badge" th:text="${simResult != null ? simResult.incidentNumber : 'INC-2026-XXXX'}">INC-2026-XXXX</span>
+                        <a id="resDossierLink" th:href="${simResult != null and simResult.incidentId != null ? '/admin/incidents/' + simResult.incidentId : '#'}" class="btn btn-primary btn-sm">Investigate Dossier</a>
+                    </div>
+                </div>
+                <div class="panel-body" style="display:flex; flex-direction:column; gap:1rem;">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; background:var(--bg-secondary); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                        <div>
+                            <span class="metric-label">Triggered Rule</span>
+                            <div id="resRuleCode" class="code-badge" style="margin-top:0.25rem;" th:text="${simResult != null ? simResult.ruleCode : '-'}">RULE-ATT-001</div>
+                        </div>
+                        <div>
+                            <span class="metric-label">Severity Level</span>
+                            <div style="margin-top:0.25rem;">
+                                <span id="resSeverity" class="badge badge-high" th:text="${simResult != null ? simResult.severity : 'HIGH'}">HIGH</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="metric-label">Detection Confidence</span>
+                            <div id="resConfidence" style="font-weight:700; color:var(--accent-teal); margin-top:0.25rem;" th:text="${simResult != null ? simResult.confidenceScore + '%' : '96%'}">96%</div>
+                        </div>
+                        <div>
+                            <span class="metric-label">Execution Status</span>
+                            <div id="resTime" style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">Executed in SQLite Kernel</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="metric-label">Detection Rationale</span>
+                        <p id="resReason" style="margin-top:0.25rem; font-size:0.88rem; color:var(--text-primary);" th:text="${simResult != null ? simResult.reason : ''}">Reason details</p>
+                    </div>
+
+                    <div style="background:var(--bg-primary); padding:1rem; border-radius:var(--radius-md); border-left:3px solid var(--accent-teal);">
+                        <span class="metric-label" style="color:var(--accent-teal);">Generated Sentinel Insight™ Intelligence</span>
+                        <pre id="resInsight" style="white-space:pre-wrap; font-family:inherit; font-size:0.8rem; line-height:1.5; color:var(--text-secondary); margin-top:0.5rem;" th:text="${simResult != null ? simResult.insightExplanation : ''}">
+                            Sentinel Insight...
+                        </pre>
+                    </div>
+
+                    <div>
+                        <span class="metric-label">Forensic Payload Injected</span>
+                        <pre id="resPayload" style="background:var(--bg-input); padding:0.75rem; border-radius:var(--radius-sm); font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-teal); overflow-x:auto; margin-top:0.25rem;" th:text="${simResult != null ? simResult.evidenceJson : ''}">
+                            {"payload": "test"}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The 4 Core Simulation Scenario Cards Required -->
+            <div class="simulation-grid">
+                <!-- Card 1: Unauthorized Attendance -->
+                <div class="simulation-card">
+                    <div class="sim-header">
+                        <div class="sim-icon-box amber">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                        </div>
+                        <span class="badge badge-high">RULE-ATT-001</span>
+                    </div>
+                    <div>
+                        <h3 class="sim-title">A. Unauthorized Attendance Modification</h3>
+                        <p class="sim-desc">Simulates a student or unassigned faculty member attempting to inject attendance alterations for a course they do not instruct.</p>
+                    </div>
+                    <div class="sim-meta">
+                        <span>Actor: <strong>student101</strong></span>
+                        <span>Target: <strong>CS301 Attendance</strong></span>
+                    </div>
+                    <div class="sim-meta" style="margin-top:0.25rem;">
+                        <span>Risk Level: <span class="badge badge-high">HIGH</span></span>
+                        <span id="status-att" class="badge badge-low">READY</span>
+                    </div>
+                    <button type="button" class="btn btn-primary run-sim-btn" data-type="UNAUTHORIZED_ATTENDANCE" data-actor="student101" style="width:100%; margin-top:0.75rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <span>Run Simulation</span>
+                    </button>
+                </div>
+
+                <!-- Card 2: Bulk Academic Modification -->
+                <div class="simulation-card">
+                    <div class="sim-header">
+                        <div class="sim-icon-box red">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        </div>
+                        <span class="badge badge-critical">RULE-MOD-002</span>
+                    </div>
+                    <div>
+                        <h3 class="sim-title">B. Bulk Academic Record Modification</h3>
+                        <p class="sim-desc">Simulates high-velocity mass grade adjustments exceeding rolling window threshold (20 changes in 120s), triggering anomaly alerts.</p>
+                    </div>
+                    <div class="sim-meta">
+                        <span>Actor: <strong>faculty102</strong></span>
+                        <span>Target: <strong>CS305 Gradebook</strong></span>
+                    </div>
+                    <div class="sim-meta" style="margin-top:0.25rem;">
+                        <span>Risk Level: <span class="badge badge-critical">HIGH / CRITICAL</span></span>
+                        <span id="status-mod" class="badge badge-low">READY</span>
+                    </div>
+                    <button type="button" class="btn btn-danger run-sim-btn" data-type="BULK_ACADEMIC_MODIFICATION" data-actor="faculty102" style="width:100%; margin-top:0.75rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <span>Run Simulation</span>
+                    </button>
+                </div>
+
+                <!-- Card 3: Unauthorized Privilege Change -->
+                <div class="simulation-card">
+                    <div class="sim-header">
+                        <div class="sim-icon-box red">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </div>
+                        <span class="badge badge-critical">RULE-PRV-003</span>
+                    </div>
+                    <div>
+                        <h3 class="sim-title">C. Unauthorized Privilege Change</h3>
+                        <p class="sim-desc">Simulates an ordinary user session attempting to mutate user roles, elevate account permissions to ADMINISTRATOR, or toggle user status.</p>
+                    </div>
+                    <div class="sim-meta">
+                        <span>Actor: <strong>student101</strong></span>
+                        <span>Target: <strong>/admin/users/role</strong></span>
+                    </div>
+                    <div class="sim-meta" style="margin-top:0.25rem;">
+                        <span>Risk Level: <span class="badge badge-critical">CRITICAL</span></span>
+                        <span id="status-prv" class="badge badge-low">READY</span>
+                    </div>
+                    <button type="button" class="btn btn-danger run-sim-btn" data-type="UNAUTHORIZED_PRIVILEGE_CHANGE" data-actor="student101" style="width:100%; margin-top:0.75rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <span>Run Simulation</span>
+                    </button>
+                </div>
+
+                <!-- Card 4: Unauthorized Student Record Access -->
+                <div class="simulation-card">
+                    <div class="sim-header">
+                        <div class="sim-icon-box amber">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
+                        </div>
+                        <span class="badge badge-high">RULE-REC-004</span>
+                    </div>
+                    <div>
+                        <h3 class="sim-title">D. Unauthorized Student Record Access</h3>
+                        <p class="sim-desc">Simulates horizontal IDOR probe where Student 101 attempts to query Student 102's marks, testing data ownership boundaries.</p>
+                    </div>
+                    <div class="sim-meta">
+                        <span>Actor: <strong>student101</strong></span>
+                        <span>Target: <strong>student102 Profile</strong></span>
+                    </div>
+                    <div class="sim-meta" style="margin-top:0.25rem;">
+                        <span>Risk Level: <span class="badge badge-high">HIGH</span></span>
+                        <span id="status-rec" class="badge badge-low">READY</span>
+                    </div>
+                    <button type="button" class="btn btn-primary run-sim-btn" data-type="UNAUTHORIZED_STUDENT_RECORD_ACCESS" data-actor="student101" style="width:100%; margin-top:0.75rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <span>Run Simulation</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Historical Simulation Audit Log -->
+            <div class="panel-card" style="margin-top:1.5rem;">
+                <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 class="panel-title">Recent Simulation Executions</h3>
+                        <span class="panel-subtitle">Audit history of sandbox scenario runs stored in SQLite (simulation_runs)</span>
+                    </div>
+                    <a th:href="@{/admin/analytics/export/simulation.pdf}" class="btn btn-outline btn-sm" title="Export Simulation Audit PDF">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+                        <span>Export PDF</span>
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table" id="simHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Scenario Type</th>
+                                <th>Detection Status</th>
+                                <th>Linked Incident</th>
+                                <th>Summary Output</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${recentRuns == null or recentRuns.empty}">
+                                <td colspan="5" style="text-align:center; color:var(--text-muted); padding:2rem;">No simulations run yet in this session. Click any "Run Simulation" button above.</td>
+                            </tr>
+                            <tr th:each="r : ${recentRuns}">
+                                <td style="font-family:var(--font-mono); font-size:0.75rem;" th:text="${#temporals.format(r.runAt, 'yyyy-MM-dd HH:mm:ss')}">2026-11-07 11:00</td>
+                                <td style="font-weight:600;"><span class="code-badge" th:text="${r.simulationType}">UNAUTHORIZED_ATTENDANCE</span></td>
+                                <td>
+                                    <span class="badge" th:classappend="${r.detected ? 'badge-critical' : 'badge-low'}" th:text="${r.detected ? 'DETECTED' : 'PASSED'}">DETECTED</span>
+                                </td>
+                                <td>
+                                    <a th:if="${r.incidentId != null}" th:href="@{'/admin/incidents/' + ${r.incidentId}}" class="btn btn-outline btn-sm">View Incident</a>
+                                    <span th:if="${r.incidentId == null}" style="color:var(--text-muted); font-size:0.75rem;">None</span>
+                                </td>
+                                <td style="color:var(--text-secondary); font-size:0.8rem;" th:text="${r.summary}">Summary</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const simButtons = document.querySelectorAll('.run-sim-btn');
+    simButtons.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const simType = btn.getAttribute('data-type');
+            const actor = btn.getAttribute('data-actor');
+            const originalContent = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = `<span>Simulating...</span>`;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('simulationType', simType);
+                formData.append('actor', actor);
+
+                const response = await fetch('/admin/simulation/api/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    renderSimulationResult(data);
+                    showToast(`Threat Simulation '${simType}' executed: ${data.detected ? 'ANOMALY DETECTED' : 'PASSED'}`, data.detected ? 'warning' : 'success');
+                } else {
+                    showToast('Simulation execution failed. Please check server logs.', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Network error while running simulation.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+        });
+    });
+
+    function renderSimulationResult(res) {
+        const container = document.getElementById('simResultContainer');
+        if (!container) return;
+
+        document.getElementById('resTitle').textContent = res.title || 'Simulation Evaluated';
+        document.getElementById('resBadge').textContent = res.detected ? 'ANOMALY DETECTED' : 'SAFE / NO ALERT';
+        document.getElementById('resBadge').className = 'badge ' + (res.detected ? 'badge-critical' : 'badge-low');
+
+        if (res.incidentNumber) {
+            document.getElementById('resIncNum').textContent = res.incidentNumber;
+            document.getElementById('resDossierLink').href = '/admin/incidents/' + res.incidentId;
+            document.getElementById('resActionGroup').style.display = 'flex';
+        } else {
+            document.getElementById('resActionGroup').style.display = 'none';
+        }
+
+        document.getElementById('resRuleCode').textContent = res.ruleCode || '-';
+        document.getElementById('resSeverity').textContent = res.severity || 'HIGH';
+        document.getElementById('resConfidence').textContent = (res.confidenceScore || 95) + '%';
+        document.getElementById('resReason').textContent = res.reason || '';
+        document.getElementById('resInsight').textContent = res.insightExplanation || '';
+        document.getElementById('resPayload').textContent = res.evidenceJson || '{}';
+
+        container.style.display = 'block';
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+});
+</script>
+</body>
+</html>
